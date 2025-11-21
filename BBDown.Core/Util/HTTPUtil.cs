@@ -1,4 +1,5 @@
-﻿using System.Net;
+using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using static BBDown.Core.Logger;
 
@@ -7,11 +8,15 @@ namespace BBDown.Core.Util;
 public static class HTTPUtil
 {
 
-    public static readonly HttpClient AppHttpClient = new(new HttpClientHandler
+    public static readonly HttpClient AppHttpClient = new(new SocketsHttpHandler
     {
         AllowAutoRedirect = true,
         AutomaticDecompression = DecompressionMethods.All,
-        ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
+        MaxConnectionsPerServer = 2048,
+        SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+        {
+            RemoteCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
+        }
     })
     {
         Timeout = TimeSpan.FromMinutes(2)
@@ -66,7 +71,8 @@ public static class HTTPUtil
 
         LogDebug("获取网页重定向地址: Url: {0}, Headers: {1}", url, webRequest.Headers);
         var webResponse = (await AppHttpClient.SendAsync(webRequest, HttpCompletionOption.ResponseHeadersRead)).EnsureSuccessStatusCode();
-        string location = webResponse.RequestMessage.RequestUri.AbsoluteUri;
+        var reqUri = webResponse.RequestMessage?.RequestUri;
+        string location = reqUri != null ? reqUri.AbsoluteUri : url;
         LogDebug("Location: {0}", location);
         return location;
     }

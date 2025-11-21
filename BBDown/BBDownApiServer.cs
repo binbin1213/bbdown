@@ -65,6 +65,7 @@ public class BBDownApiServer
                 return Results.BadRequest("输入有误");
             }
             var req = bindingResult.Result;
+            if (req is null) return Results.BadRequest("输入为空");
             _ = AddDownloadTaskAsync(req)
                 .ContinueWith(async task => {
                     // send request to callback webhook

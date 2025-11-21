@@ -164,3 +164,54 @@ jobs:
         with:
           name: BBDown_osx-arm64
           path: BBDown_${{ needs.set-date.outputs.date }}_osx-arm64.zip
+
+  build-gui-macos:
+    name: 构建 GUI macOS
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        rid: [ osx-arm64, osx-x64 ]
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      - name: 安装 .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+      - name: 还原依赖
+        run: dotnet restore BBDown.GUI/BBDown.GUI.csproj
+      - name: 发布 ${{ matrix.rid }}
+        run: |
+          dotnet publish BBDown.GUI/BBDown.GUI.csproj -c Release -r ${{ matrix.rid }} /p:SelfContained=true /p:PublishTrimmed=false
+      - name: 上传构建产物 ${{ matrix.rid }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: BBDown.GUI-${{ matrix.rid }}
+          path: BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish
+          retention-days: 3
+
+  build-gui-windows:
+    name: 构建 GUI Windows
+    runs-on: windows-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      - name: 安装 .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+      - name: 还原依赖
+        run: dotnet restore BBDown.GUI/BBDown.GUI.csproj
+      - name: 发布 win-x64
+        run: |
+          dotnet publish BBDown.GUI/BBDown.GUI.csproj -c Release -r win-x64 /p:SelfContained=true /p:PublishTrimmed=false /p:PublishSingleFile=true
+      - name: 上传构建产物 win-x64
+        uses: actions/upload-artifact@v4
+        with:
+          name: BBDown.GUI-win-x64
+          path: BBDown.GUI/bin/Release/net9.0/win-x64/publish
+          retention-days: 3

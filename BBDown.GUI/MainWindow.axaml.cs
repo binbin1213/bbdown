@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using Avalonia.Interactivity;
 
 namespace BBDown.GUI;
@@ -215,15 +216,16 @@ public partial class MainWindow : Window
 
     private async Task<string?> PickFileAsync(string title)
     {
-        var dlg = new OpenFileDialog { Title = title, AllowMultiple = false };
-        var res = await dlg.ShowAsync(this);
-        return res != null && res.Length > 0 ? res[0] : null;
+        if (StorageProvider is null) return null;
+        var res = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions { Title = title, AllowMultiple = false });
+        return res != null && res.Count > 0 ? res[0].Path.LocalPath : null;
     }
 
     private async Task<string?> PickFolderAsync(string title)
     {
-        var dlg = new OpenFolderDialog { Title = title };
-        return await dlg.ShowAsync(this);
+        if (StorageProvider is null) return null;
+        var res = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { Title = title, AllowMultiple = false });
+        return res != null && res.Count > 0 ? res[0].Path.LocalPath : null;
     }
 
     private bool DotnetAvailable()
