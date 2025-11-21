@@ -374,3 +374,11 @@ debug_*.json
 /BBDown/*.mp4
 /BBDown/*.xml
 /BBDown/*.ass
+
+ffmpeg
+MP4Box
+aria2c
+tools/
+bbdown-bin/
+BBDown_osx-*.zip
+BBDown_*.zip

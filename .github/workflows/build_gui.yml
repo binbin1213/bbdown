@@ -1,50 +1,70 @@
-name: Build GUI
+name: 构建 GUI
 
 on:
   workflow_dispatch:
+    inputs:
+      upload_artifacts:
+        description: '是否上传构建产物（减少占用可设为 false）'
+        required: false
+        type: boolean
+        default: true
   push:
     branches: [ main ]
 
+concurrency:
+  group: build-gui-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-macos:
+    name: 构建 macOS
     runs-on: macos-latest
     strategy:
       matrix:
         rid: [ osx-arm64, osx-x64 ]
     steps:
-      - name: Checkout
+      - name: 检出代码
         uses: actions/checkout@v4
-      - name: Setup .NET 9
+      - name: 安装 .NET 9
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
-      - name: Restore
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+      - name: 还原依赖
         run: dotnet restore BBDown.GUI/BBDown.GUI.csproj
-      - name: Publish ${{ matrix.rid }}
+      - name: 发布 ${{ matrix.rid }}
         run: |
           dotnet publish BBDown.GUI/BBDown.GUI.csproj -c Release -r ${{ matrix.rid }} /p:SelfContained=true /p:PublishTrimmed=false
-      - name: Upload Artifact ${{ matrix.rid }}
+      - name: 上传构建产物 ${{ matrix.rid }}
+        if: github.event_name == 'workflow_dispatch' && inputs.upload_artifacts == true
         uses: actions/upload-artifact@v4
         with:
           name: BBDown.GUI-${{ matrix.rid }}
           path: BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish
+          retention-days: 3
 
   build-windows:
+    name: 构建 Windows
     runs-on: windows-latest
     steps:
-      - name: Checkout
+      - name: 检出代码
         uses: actions/checkout@v4
-      - name: Setup .NET 9
+      - name: 安装 .NET 9
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
-      - name: Restore
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+      - name: 还原依赖
         run: dotnet restore BBDown.GUI/BBDown.GUI.csproj
-      - name: Publish win-x64
+      - name: 发布 win-x64
         run: |
           dotnet publish BBDown.GUI/BBDown.GUI.csproj -c Release -r win-x64 /p:SelfContained=true /p:PublishTrimmed=false /p:PublishSingleFile=true
-      - name: Upload Artifact win-x64
+      - name: 上传构建产物 win-x64
+        if: github.event_name == 'workflow_dispatch' && inputs.upload_artifacts == true
         uses: actions/upload-artifact@v4
         with:
           name: BBDown.GUI-win-x64
           path: BBDown.GUI/bin/Release/net9.0/win-x64/publish
+          retention-days: 3
