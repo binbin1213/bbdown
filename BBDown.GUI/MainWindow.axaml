@@ -1,0 +1,169 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="BBDown.GUI.MainWindow" Width="1024" Height="720" Title="BBDown GUI">
+  <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="*">
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="12">
+      <TextBlock Text="URL" VerticalAlignment="Center"/>
+      <TextBox Name="UrlBox" Width="680"/>
+      <TextBlock Text="API" VerticalAlignment="Center" Margin="12,0,0,0"/>
+      <ComboBox Name="ApiTypeBox" Width="160">
+        <ComboBoxItem Content="WEB"/>
+        <ComboBoxItem Content="TV"/>
+        <ComboBoxItem Content="APP"/>
+        <ComboBoxItem Content="INTL"/>
+      </ComboBox>
+    </StackPanel>
+
+    <TabControl Grid.Row="1" Margin="12">
+      <TabItem Header="简单设置">
+        <Grid RowDefinitions="Auto,Auto,Auto,*" ColumnDefinitions="*">
+          <StackPanel Grid.Row="0" Orientation="Vertical" Spacing="6">
+            <CheckBox Name="OnlyInfoBox" Content="仅解析不下载 (-info)"/>
+            <CheckBox Name="MultiThreadBox" Content="多线程下载 (-mt)" IsChecked="True"/>
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <CheckBox Name="VideoOnlyBox" Content="仅视频 (--video-only)"/>
+              <CheckBox Name="AudioOnlyBox" Content="仅音频 (--audio-only)"/>
+              <CheckBox Name="UseAria2cBox" Content="使用 aria2c (--use-aria2c)"/>
+              <CheckBox Name="DebugBox" Content="调试日志 (--debug)"/>
+            </StackPanel>
+          </StackPanel>
+
+          <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="分P (-p)" VerticalAlignment="Center"/>
+            <TextBox Name="SelectPageBox" Width="160" Watermark="如: 1,2,10 或 1-3 或 ALL"/>
+            <TextBlock Text="文件名 (-F)" VerticalAlignment="Center"/>
+            <TextBox Name="FilePatternBox" Width="360" Watermark="如: &lt;videoTitle&gt;[&lt;dfn&gt;]"/>
+          </StackPanel>
+
+          <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="aria2c 参数" VerticalAlignment="Center"/>
+            <TextBox Name="Aria2cArgsBox" Width="540" Watermark="默认: -x16 -s16 -j16 -k 5M"/>
+          </StackPanel>
+
+          <Grid Grid.Row="3">
+            <Grid RowDefinitions="Auto,*">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Name="StartButton" Width="160" Height="36">开始</Button>
+                <Button Name="StopButton" Width="120" Height="36">停止</Button>
+              </StackPanel>
+              <TextBox Name="LogBox" Grid.Row="1" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" FontFamily="Consolas" TextWrapping="Wrap"/>
+            </Grid>
+          </Grid>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="高级设置">
+        <ScrollViewer>
+          <StackPanel Orientation="Vertical" Spacing="10">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="语言 (--language)" VerticalAlignment="Center"/>
+              <TextBox Name="LanguageBox" Width="140"/>
+              <TextBlock Text="UA (-ua)" VerticalAlignment="Center"/>
+              <TextBox Name="UserAgentBox" Width="280"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="Cookie (-c)" VerticalAlignment="Center"/>
+              <TextBox Name="CookieBox" Width="540"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="AccessToken (-token)" VerticalAlignment="Center"/>
+              <TextBox Name="TokenBox" Width="540"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <CheckBox Name="UseMP4boxBox" Content="使用 MP4Box (--use-mp4box)"/>
+              <TextBlock Text="编码优先级 (-e)" VerticalAlignment="Center"/>
+              <TextBox Name="EncodingPriorityBox" Width="220" Watermark="如: hevc,av1,avc"/>
+              <TextBlock Text="画质优先级 (-q)" VerticalAlignment="Center"/>
+              <TextBox Name="DfnPriorityBox" Width="220" Watermark="如: 8K 超高清, HDR 真彩"/>
+              <Button Name="PresetBestButton" Width="120" Height="28">最高画质</Button>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <CheckBox Name="ShowAllBox" Content="显示所有分P (--show-all)"/>
+              <CheckBox Name="SimplyMuxBox" Content="精简混流 (--simply-mux)"/>
+              <CheckBox Name="DanmakuOnlyBox" Content="仅弹幕 (--danmaku-only)"/>
+              <CheckBox Name="CoverOnlyBox" Content="仅封面 (--cover-only)"/>
+              <CheckBox Name="SubOnlyBox" Content="仅字幕 (--sub-only)"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <CheckBox Name="SkipMuxBox" Content="跳过混流 (--skip-mux)"/>
+              <CheckBox Name="SkipSubtitleBox" Content="跳过字幕 (--skip-subtitle)"/>
+              <CheckBox Name="SkipCoverBox" Content="跳过封面 (--skip-cover)"/>
+              <CheckBox Name="ForceHttpBox" Content="强制使用 HTTP (--force-http)"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <CheckBox Name="DownloadDanmakuBox" Content="下载弹幕 (-dd)"/>
+              <TextBlock Text="弹幕格式 (--download-danmaku-formats)" VerticalAlignment="Center"/>
+              <TextBox Name="DanmakuFormatsBox" Width="280" Watermark="xml,ass"/>
+              <CheckBox Name="SkipAiBox" Content="跳过 AI 字幕 (--skip-ai)"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <CheckBox Name="VideoAscendingBox" Content="视频升序 (--video-ascending)"/>
+              <CheckBox Name="AudioAscendingBox" Content="音频升序 (--audio-ascending)"/>
+              <CheckBox Name="AllowPcdnBox" Content="允许 PCDN (--allow-pcdn)"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="多P模板 (-M)" VerticalAlignment="Center"/>
+              <TextBox Name="MultiFilePatternBox" Width="540"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="工作目录 (--work-dir)" VerticalAlignment="Center"/>
+              <TextBox Name="WorkDirBox" Width="320"/>
+              <Button Name="BrowseWorkDirButton" Width="80" Height="28">选择</Button>
+              <TextBlock Text="延迟/秒 (--delay-per-page)" VerticalAlignment="Center"/>
+              <TextBox Name="DelayPerPageBox" Width="120"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="ffmpeg 路径" VerticalAlignment="Center"/>
+              <TextBox Name="FFmpegPathBox" Width="320"/>
+              <Button Name="BrowseFFmpegButton" Width="80" Height="28">浏览</Button>
+              <Button Name="TestFFmpegButton" Width="80" Height="28">测试</Button>
+              <TextBlock Text="mp4box 路径" VerticalAlignment="Center"/>
+              <TextBox Name="Mp4boxPathBox" Width="320"/>
+              <Button Name="BrowseMp4boxButton" Width="80" Height="28">浏览</Button>
+              <Button Name="TestMp4boxButton" Width="80" Height="28">测试</Button>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="aria2c 路径" VerticalAlignment="Center"/>
+              <TextBox Name="Aria2cPathBox" Width="320"/>
+              <Button Name="BrowseAria2cButton" Width="80" Height="28">浏览</Button>
+              <Button Name="TestAria2cButton" Width="80" Height="28">测试</Button>
+              <TextBlock Text="aria2c 参数" VerticalAlignment="Center"/>
+              <TextBox Name="Aria2cArgsBoxAdv" Width="360"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="UPOS 主机 (--upos-host)" VerticalAlignment="Center"/>
+              <TextBox Name="UposHostBox" Width="280"/>
+              <CheckBox Name="ForceReplaceHostBox" Content="强制替换主机 (--force-replace-host)"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <CheckBox Name="SaveArchivesToFileBox" Content="保存下载记录 (--save-archives-to-file)"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="BiliPlus Host (--host)" VerticalAlignment="Center"/>
+              <TextBox Name="HostBox" Width="280"/>
+              <TextBlock Text="EP Host (--ep-host)" VerticalAlignment="Center"/>
+              <TextBox Name="EpHostBox" Width="280"/>
+              <TextBlock Text="TV Host (--tv-host)" VerticalAlignment="Center"/>
+              <TextBox Name="TvHostBox" Width="280"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="Area (--area)" VerticalAlignment="Center"/>
+              <TextBox Name="AreaBox" Width="140"/>
+              <TextBlock Text="配置文件 (--config-file)" VerticalAlignment="Center"/>
+              <TextBox Name="ConfigFileBox" Width="360"/>
+              <Button Name="BrowseConfigFileButton" Width="80" Height="28">浏览</Button>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="CLI 路径" VerticalAlignment="Center"/>
+              <TextBox Name="CliPathBox" Width="480"/>
+              <Button Name="BrowseCliButton" Width="80" Height="28">浏览</Button>
+              <Button Name="TestCliButton" Width="80" Height="28">测试</Button>
+            </StackPanel>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+    </TabControl>
+
+    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="12" Spacing="8">
+      <TextBlock Text="提示: 可在高级设置中配置全部命令行参数。"/>
+    </StackPanel>
+  </Grid>
+</Window>
