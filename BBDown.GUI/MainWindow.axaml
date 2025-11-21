@@ -44,7 +44,7 @@
                 <Button Name="StartButton" Width="160" Height="36">开始</Button>
                 <Button Name="StopButton" Width="120" Height="36">停止</Button>
               </StackPanel>
-              <TextBox Name="LogBox" Grid.Row="1" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" FontFamily="Consolas" TextWrapping="Wrap"/>
+              <TextBox Name="LogBox" Grid.Row="1" AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" IsReadOnly="True" FontFamily="Consolas" TextWrapping="Wrap"/>
             </Grid>
           </Grid>
         </Grid>
