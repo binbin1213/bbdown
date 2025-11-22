@@ -4,6 +4,14 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <CFBundleName>BBDown.GUI</CFBundleName>
+    <CFBundleDisplayName>BBDown GUI</CFBundleDisplayName>
+    <CFBundleIdentifier>com.nilaoda.bbdown.gui</CFBundleIdentifier>
+    <CFBundleVersion>1.6.3</CFBundleVersion>
+    <CFBundleShortVersionString>1.6.3</CFBundleShortVersionString>
+    <CFBundleExecutable>BBDown.GUI</CFBundleExecutable>
+    <NSPrincipalClass>NSApplication</NSPrincipalClass>
+    <NSHighResolutionCapable>true</NSHighResolutionCapable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,6 +19,7 @@
     <PackageReference Include="Avalonia.Desktop" Version="11.0.6" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.6" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.6" />
+    <PackageReference Include="Dotnet.Bundle" Version="0.9.13" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

@@ -121,16 +121,18 @@ public partial class MainWindow : Window
     private async Task RunCliAsync(List<string> args, CancellationToken token)
     {
         var cliPath = CliPathBox.Text;
-        var useCliExe = !string.IsNullOrWhiteSpace(cliPath) && File.Exists(cliPath);
+        var bundledCli = FindBundledCli();
+        var useBundled = bundledCli != null && File.Exists(bundledCli);
+        var useCliExe = !useBundled && !string.IsNullOrWhiteSpace(cliPath) && File.Exists(cliPath);
         var psi = new ProcessStartInfo
         {
-            FileName = useCliExe ? cliPath! : "dotnet",
+            FileName = useBundled ? bundledCli! : (useCliExe ? cliPath! : "dotnet"),
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true
         };
-        if (useCliExe)
+        if (useBundled || useCliExe)
         {
             foreach (var a in args) psi.ArgumentList.Add(a);
         }
@@ -167,6 +169,22 @@ public partial class MainWindow : Window
                 Thread.Sleep(100);
             }
         });
+    }
+
+    private string? FindBundledCli()
+    {
+        try
+        {
+            var baseDir = AppContext.BaseDirectory;
+            var exeName = OperatingSystem.IsWindows() ? "BBDown.exe" : "BBDown";
+            var p = Path.Combine(baseDir, exeName);
+            if (File.Exists(p)) return p;
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private void AppendLog(string line)

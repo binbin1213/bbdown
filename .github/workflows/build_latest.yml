@@ -118,13 +118,33 @@ jobs:
           dotnet-version: '9.0.x'
           cache: true
           cache-dependency-path: '**/*.csproj'
-      - name: Restore dependencies
-        run: dotnet restore BBDown.GUI/BBDown.GUI.csproj
-      - name: Publish
-        run: dotnet publish BBDown.GUI/BBDown.GUI.csproj -c Release -r ${{ matrix.rid }} /p:SelfContained=true /p:PublishTrimmed=false /p:PublishSingleFile=true
-      - name: Upload Artifact
+      - name: Restore (with RID)
+        run: dotnet restore BBDown.GUI/BBDown.GUI.csproj -r ${{ matrix.rid }}
+      - name: Create .app bundle
+        run: |
+          dotnet msbuild BBDown.GUI/BBDown.GUI.csproj -t:BundleApp \
+            -p:RuntimeIdentifier=${{ matrix.rid }} \
+            -p:UseAppHost=true \
+            -p:SelfContained=true \
+            -property:Configuration=Release
+      - name: Publish CLI for same RID
+        run: |
+          dotnet publish BBDown/BBDown.csproj -c Release -r ${{ matrix.rid }} /p:SelfContained=true /p:PublishSingleFile=true -o BBDown-cli
+          APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS" \
+            && cp BBDown-cli/BBDown "$APP_DIR/BBDown"
+      - name: Add external tools into .app
+        run: |
+          APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS" \
+            && mkdir -p "$APP_DIR" \
+            && for t in ffmpeg MP4Box aria2c; do [ -f "$t" ] && cp "$t" "$APP_DIR/$t" || true; done
+      - name: Create DMG
+        run: |
+          APP_PATH="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app" \
+            && DMG_NAME="BBDown.GUI-${{ matrix.rid }}.dmg" \
+            && hdiutil create -volname "BBDown" -srcfolder "$APP_PATH" -ov -format UDZO "$DMG_NAME"
+      - name: Upload DMG Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BBDown.GUI-${{ matrix.rid }}
-          path: BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish
+          path: BBDown.GUI-${{ matrix.rid }}.dmg
           retention-days: 3
