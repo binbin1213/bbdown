@@ -153,6 +153,7 @@ jobs:
           ARIA2_URL="https://github.com/aria2/aria2/releases/download/release-1.35.0/aria2-1.35.0-osx-darwin.tar.bz2"
           
           APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS"
+          mkdir -p "$APP_DIR"
 
           # Download and install FFmpeg
           curl -L -o ffmpeg.zip "$FFMPEG_URL"

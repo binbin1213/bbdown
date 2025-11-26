@@ -12,8 +12,8 @@
     <CFBundleExecutable>BBDown.GUI</CFBundleExecutable>
     <NSPrincipalClass>NSApplication</NSPrincipalClass>
     <NSHighResolutionCapable>true</NSHighResolutionCapable>
-    <ApplicationIcon>Assets\logo.ico</ApplicationIcon>
-    <CFBundleIconFile>logo.icns</CFBundleIconFile>
+    <ApplicationIcon>Assets/logo.ico</ApplicationIcon>
+    <CFBundleIconFile>Assets/logo.icns</CFBundleIconFile>
   </PropertyGroup>
 
   <ItemGroup>
