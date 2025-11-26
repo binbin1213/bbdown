@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BBDown\BBDown.csproj" />
+    <ProjectReference Include="..\BBDown.Core\BBDown.Core.csproj" />
   </ItemGroup>
 
 </Project>

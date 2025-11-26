@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.Interactivity;
+using BBDown.Core;
 
 namespace BBDown.GUI;
 
@@ -29,7 +30,7 @@ public partial class MainWindow : Window
         BrowseFFmpegButton.Click += async (_, __) => FFmpegPathBox.Text = await PickFileAsync("选择 ffmpeg") ?? FFmpegPathBox.Text;
         BrowseMp4boxButton.Click += async (_, __) => Mp4boxPathBox.Text = await PickFileAsync("选择 MP4Box") ?? Mp4boxPathBox.Text;
         BrowseAria2cButton.Click += async (_, __) => Aria2cPathBox.Text = await PickFileAsync("选择 aria2c") ?? Aria2cPathBox.Text;
-        BrowseConfigFileButton.Click += async (_, __) => ConfigFileBox.Text = await PickFileAsync("选择配置文件") ?? ConfigFileBox.Text;
+
         BrowseWorkDirButton.Click += async (_, __) => WorkDirBox.Text = await PickFolderAsync("选择工作目录") ?? WorkDirBox.Text;
         BrowseCliButton.Click += async (_, __) => CliPathBox.Text = await PickFileAsync("选择 BBDown 可执行文件") ?? CliPathBox.Text;
         var cwd = Environment.CurrentDirectory;
@@ -45,9 +46,10 @@ public partial class MainWindow : Window
     {
         StopRunning();
         _cts = new CancellationTokenSource();
-        var args = BuildArgs();
-        AppendLog(string.Join(' ', args));
-        await RunCliAsync(args, _cts.Token);
+        var bbDownArgs = BuildBBDownArguments();
+        var stringArgs = ConvertArgumentsToStringList(bbDownArgs);
+        AppendLog(string.Join(' ', stringArgs));
+        await RunCliAsync(stringArgs, _cts.Token);
     }
 
     private void OnStop(object? sender, RoutedEventArgs e)
@@ -60,61 +62,116 @@ public partial class MainWindow : Window
         try { _cts?.Cancel(); } catch { }
     }
 
-    private List<string> BuildArgs()
+    private BBDownArguments BuildBBDownArguments()
     {
-        var url = UrlBox.Text ?? string.Empty;
+        var args = new BBDownArguments
+        {
+            Url = UrlBox.Text ?? string.Empty,
+            UseTvApi = (ApiTypeBox.SelectedItem as ComboBoxItem)?.Content?.ToString() == "TV",
+            UseAppApi = (ApiTypeBox.SelectedItem as ComboBoxItem)?.Content?.ToString() == "APP",
+            UseIntlApi = (ApiTypeBox.SelectedItem as ComboBoxItem)?.Content?.ToString() == "INTL",
+            OnlyShowInfo = OnlyInfoBox.IsChecked == true,
+            MultiThread = MultiThreadBox.IsChecked == true,
+            VideoOnly = VideoOnlyBox.IsChecked == true,
+            AudioOnly = AudioOnlyBox.IsChecked == true,
+            UseAria2c = UseAria2cBox.IsChecked == true,
+            Aria2cArgs = Aria2cArgsBox.Text ?? "",
+            SelectPage = SelectPageBox.Text ?? "",
+            FilePattern = FilePatternBox.Text ?? "",
+            Language = LanguageBox.Text ?? "",
+            UserAgent = "",
+            Cookie = CookieBox.Text ?? "",
+            AccessToken = TokenBox.Text ?? "",
+            UseMP4box = UseMP4boxBox.IsChecked == true,
+            EncodingPriority = EncodingPriorityBox.Text ?? "",
+            DfnPriority = DfnPriorityBox.Text ?? "",
+            ShowAll = ShowAllBox.IsChecked == true,
+            SimplyMux = SimplyMuxBox.IsChecked == true,
+            DanmakuOnly = DanmakuOnlyBox.IsChecked == true,
+            CoverOnly = CoverOnlyBox.IsChecked == true,
+            SubOnly = SubOnlyBox.IsChecked == true,
+            SkipMux = SkipMuxBox.IsChecked == true,
+            SkipSubtitle = SkipSubtitleBox.IsChecked == true,
+            SkipCover = SkipCoverBox.IsChecked == true,
+            ForceHttp = ForceHttpBox.IsChecked == true,
+            DownloadDanmaku = DownloadDanmakuBox.IsChecked == true,
+            DownloadDanmakuFormats = DanmakuFormatsBox.Text ?? "",
+            SkipAi = SkipAiBox.IsChecked == true,
+            VideoAscending = VideoAscendingBox.IsChecked == true,
+            AudioAscending = AudioAscendingBox.IsChecked == true,
+            AllowPcdn = AllowPcdnBox.IsChecked == true,
+            MultiFilePattern = MultiFilePatternBox.Text ?? "",
+            WorkDir = WorkDirBox.Text ?? "",
+            DelayPerPage = DelayPerPageBox.Text ?? "0",
+            FFmpegPath = FFmpegPathBox.Text ?? "",
+            Mp4boxPath = Mp4boxPathBox.Text ?? "",
+            Aria2cPath = Aria2cPathBox.Text ?? "",
+            UposHost = UposHostBox.Text ?? "",
+            ForceReplaceHost = ForceReplaceHostBox.IsChecked == true,
+            SaveArchivesToFile = SaveArchivesToFileBox.IsChecked == true,
+            Host = HostBox.Text ?? "",
+            EpHost = EpHostBox.Text ?? "",
+            TvHost = TvHostBox.Text ?? "",
+            Area = AreaBox.Text ?? "",
+            ConfigFile = string.IsNullOrWhiteSpace(ConfigFileBox.Text) ? null : ConfigFileBox.Text,
+            Debug = DebugBox.IsChecked == true
+        };
+
+        return args;
+    }
+
+    private List<string> ConvertArgumentsToStringList(BBDownArguments args)
+    {
         var list = new List<string>();
-        if (!string.IsNullOrWhiteSpace(url)) list.Add(url);
-        var api = (ApiTypeBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "WEB";
-        if (api == "TV") list.Add("-tv");
-        else if (api == "APP") list.Add("-app");
-        else if (api == "INTL") list.Add("-intl");
-        if (OnlyInfoBox.IsChecked == true) list.Add("-info");
-        if (MultiThreadBox.IsChecked == true) list.Add("-mt");
-        if (VideoOnlyBox.IsChecked == true) list.Add("--video-only");
-        if (AudioOnlyBox.IsChecked == true) list.Add("--audio-only");
-        if (UseAria2cBox.IsChecked == true) list.Add("--use-aria2c");
-        if (!string.IsNullOrWhiteSpace(Aria2cArgsBox.Text)) { list.Add("--aria2c-args"); list.Add(Aria2cArgsBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(SelectPageBox.Text)) { list.Add("-p"); list.Add(SelectPageBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(FilePatternBox.Text)) { list.Add("-F"); list.Add(FilePatternBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(LanguageBox.Text)) { list.Add("--language"); list.Add(LanguageBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(UserAgentBox.Text)) { list.Add("-ua"); list.Add(UserAgentBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(CookieBox.Text)) { list.Add("-c"); list.Add(CookieBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(TokenBox.Text)) { list.Add("-token"); list.Add(TokenBox.Text!); }
-        if (UseMP4boxBox.IsChecked == true) list.Add("--use-mp4box");
-        if (!string.IsNullOrWhiteSpace(EncodingPriorityBox.Text)) { list.Add("-e"); list.Add(EncodingPriorityBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(DfnPriorityBox.Text)) { list.Add("-q"); list.Add(DfnPriorityBox.Text!); }
-        if (ShowAllBox.IsChecked == true) list.Add("--show-all");
-        if (SimplyMuxBox.IsChecked == true) list.Add("--simply-mux");
-        if (DanmakuOnlyBox.IsChecked == true) list.Add("--danmaku-only");
-        if (CoverOnlyBox.IsChecked == true) list.Add("--cover-only");
-        if (SubOnlyBox.IsChecked == true) list.Add("--sub-only");
-        if (SkipMuxBox.IsChecked == true) list.Add("--skip-mux");
-        if (SkipSubtitleBox.IsChecked == true) list.Add("--skip-subtitle");
-        if (SkipCoverBox.IsChecked == true) list.Add("--skip-cover");
-        if (ForceHttpBox.IsChecked == true) list.Add("--force-http");
-        if (DownloadDanmakuBox.IsChecked == true) list.Add("-dd");
-        if (!string.IsNullOrWhiteSpace(DanmakuFormatsBox.Text)) { list.Add("--download-danmaku-formats"); list.Add(DanmakuFormatsBox.Text!); }
-        if (SkipAiBox.IsChecked == true) list.Add("--skip-ai");
-        if (VideoAscendingBox.IsChecked == true) list.Add("--video-ascending");
-        if (AudioAscendingBox.IsChecked == true) list.Add("--audio-ascending");
-        if (AllowPcdnBox.IsChecked == true) list.Add("--allow-pcdn");
-        if (!string.IsNullOrWhiteSpace(MultiFilePatternBox.Text)) { list.Add("-M"); list.Add(MultiFilePatternBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(WorkDirBox.Text)) { list.Add("--work-dir"); list.Add(WorkDirBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(DelayPerPageBox.Text)) { list.Add("--delay-per-page"); list.Add(DelayPerPageBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(FFmpegPathBox.Text)) { list.Add("--ffmpeg-path"); list.Add(FFmpegPathBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(Mp4boxPathBox.Text)) { list.Add("--mp4box-path"); list.Add(Mp4boxPathBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(Aria2cPathBox.Text)) { list.Add("--aria2c-path"); list.Add(Aria2cPathBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(Aria2cArgsBoxAdv.Text)) { list.Add("--aria2c-args"); list.Add(Aria2cArgsBoxAdv.Text!); }
-        if (!string.IsNullOrWhiteSpace(UposHostBox.Text)) { list.Add("--upos-host"); list.Add(UposHostBox.Text!); }
-        if (ForceReplaceHostBox.IsChecked == true) list.Add("--force-replace-host");
-        if (SaveArchivesToFileBox.IsChecked == true) list.Add("--save-archives-to-file");
-        if (!string.IsNullOrWhiteSpace(HostBox.Text)) { list.Add("--host"); list.Add(HostBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(EpHostBox.Text)) { list.Add("--ep-host"); list.Add(EpHostBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(TvHostBox.Text)) { list.Add("--tv-host"); list.Add(TvHostBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(AreaBox.Text)) { list.Add("--area"); list.Add(AreaBox.Text!); }
-        if (!string.IsNullOrWhiteSpace(ConfigFileBox.Text)) { list.Add("--config-file"); list.Add(ConfigFileBox.Text!); }
-        if (DebugBox.IsChecked == true) list.Add("--debug");
+        if (!string.IsNullOrWhiteSpace(args.Url)) list.Add(args.Url);
+        if (args.UseTvApi) list.Add("-tv");
+        if (args.UseAppApi) list.Add("-app");
+        if (args.UseIntlApi) list.Add("-intl");
+        if (args.OnlyShowInfo) list.Add("-info");
+        if (args.MultiThread) list.Add("-mt");
+        if (args.VideoOnly) list.Add("--video-only");
+        if (args.AudioOnly) list.Add("--audio-only");
+        if (args.UseAria2c) list.Add("--use-aria2c");
+        if (!string.IsNullOrWhiteSpace(args.Aria2cArgs)) { list.Add("--aria2c-args"); list.Add(args.Aria2cArgs); }
+        if (!string.IsNullOrWhiteSpace(args.SelectPage)) { list.Add("-p"); list.Add(args.SelectPage); }
+        if (!string.IsNullOrWhiteSpace(args.FilePattern)) { list.Add("-F"); list.Add(args.FilePattern); }
+        if (!string.IsNullOrWhiteSpace(args.Language)) { list.Add("--language"); list.Add(args.Language); }
+        if (!string.IsNullOrWhiteSpace(args.UserAgent)) { list.Add("-ua"); list.Add(args.UserAgent); }
+        if (!string.IsNullOrWhiteSpace(args.Cookie)) { list.Add("-c"); list.Add(args.Cookie); }
+        if (!string.IsNullOrWhiteSpace(args.AccessToken)) { list.Add("-token"); list.Add(args.AccessToken); }
+        if (args.UseMP4box) list.Add("--use-mp4box");
+        if (!string.IsNullOrWhiteSpace(args.EncodingPriority)) { list.Add("-e"); list.Add(args.EncodingPriority); }
+        if (!string.IsNullOrWhiteSpace(args.DfnPriority)) { list.Add("-q"); list.Add(args.DfnPriority); }
+        if (args.ShowAll) list.Add("--show-all");
+        if (args.SimplyMux) list.Add("--simply-mux");
+        if (args.DanmakuOnly) list.Add("--danmaku-only");
+        if (args.CoverOnly) list.Add("--cover-only");
+        if (args.SubOnly) list.Add("--sub-only");
+        if (args.SkipMux) list.Add("--skip-mux");
+        if (args.SkipSubtitle) list.Add("--skip-subtitle");
+        if (args.SkipCover) list.Add("--skip-cover");
+        if (args.ForceHttp) list.Add("--force-http");
+        if (args.DownloadDanmaku) list.Add("-dd");
+        if (!string.IsNullOrWhiteSpace(args.DownloadDanmakuFormats)) { list.Add("--download-danmaku-formats"); list.Add(args.DownloadDanmakuFormats); }
+        if (args.SkipAi) list.Add("--skip-ai");
+        if (args.VideoAscending) list.Add("--video-ascending");
+        if (args.AudioAscending) list.Add("--audio-ascending");
+        if (args.AllowPcdn) list.Add("--allow-pcdn");
+        if (!string.IsNullOrWhiteSpace(args.MultiFilePattern)) { list.Add("-M"); list.Add(args.MultiFilePattern); }
+        if (!string.IsNullOrWhiteSpace(args.WorkDir)) { list.Add("--work-dir"); list.Add(args.WorkDir); }
+        if (!string.IsNullOrWhiteSpace(args.DelayPerPage)) { list.Add("--delay-per-page"); list.Add(args.DelayPerPage); }
+        if (!string.IsNullOrWhiteSpace(args.FFmpegPath)) { list.Add("--ffmpeg-path"); list.Add(args.FFmpegPath); }
+        if (!string.IsNullOrWhiteSpace(args.Mp4boxPath)) { list.Add("--mp4box-path"); list.Add(args.Mp4boxPath); }
+        if (!string.IsNullOrWhiteSpace(args.Aria2cPath)) { list.Add("--aria2c-path"); list.Add(args.Aria2cPath); }
+        if (!string.IsNullOrWhiteSpace(args.UposHost)) { list.Add("--upos-host"); list.Add(args.UposHost); }
+        if (args.ForceReplaceHost) list.Add("--force-replace-host");
+        if (args.SaveArchivesToFile) list.Add("--save-archives-to-file");
+        if (!string.IsNullOrWhiteSpace(args.Host)) { list.Add("--host"); list.Add(args.Host); }
+        if (!string.IsNullOrWhiteSpace(args.EpHost)) { list.Add("--ep-host"); list.Add(args.EpHost); }
+        if (!string.IsNullOrWhiteSpace(args.TvHost)) { list.Add("--tv-host"); list.Add(args.TvHost); }
+        if (!string.IsNullOrWhiteSpace(args.Area)) { list.Add("--area"); list.Add(args.Area); }
+        if (!string.IsNullOrWhiteSpace(args.ConfigFile)) { list.Add("--config-file"); list.Add(args.ConfigFile); }
+        if (args.Debug) list.Add("--debug");
         return list;
     }
 
@@ -189,9 +246,12 @@ public partial class MainWindow : Window
 
     private void AppendLog(string line)
     {
-        var s = LogBox.Text ?? string.Empty;
-        s += line + Environment.NewLine;
-        LogBox.Text = s;
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => 
+        {
+            var s = LogBox.Text ?? string.Empty;
+            s += line + Environment.NewLine;
+            LogBox.Text = s;
+        });
     }
 
     private async Task TestBinary(string exe, string args)

@@ -11,234 +11,370 @@
       </ComboBox>
     </Grid>
 
-    <Grid Grid.Row="1" ColumnDefinitions="2*,1*" Margin="0,16,0,0">
-      <ScrollViewer Grid.Column="0">
-        <StackPanel>
-          <Border Classes="card">
-            <StackPanel>
-              <TextBlock Classes="card-title" Text="下载选项"/>
-              <StackPanel Orientation="Horizontal" Spacing="12">
-                <CheckBox Name="OnlyInfoBox" Content="仅解析不下载 (-info)"/>
-                <CheckBox Name="MultiThreadBox" Content="多线程下载 (-mt)" IsChecked="True"/>
-                <CheckBox Name="VideoOnlyBox" Content="仅视频 (--video-only)"/>
-                <CheckBox Name="AudioOnlyBox" Content="仅音频 (--audio-only)"/>
-                <CheckBox Name="UseAria2cBox" Content="使用 aria2c (--use-aria2c)"/>
-                <CheckBox Name="DebugBox" Content="调试日志 (--debug)"/>
-              </StackPanel>
-            </StackPanel>
-          </Border>
-
-          <Border Classes="card">
-            <StackPanel>
-              <TextBlock Classes="card-title" Text="命名与分P"/>
-              <Grid ColumnDefinitions="120,*" Margin="0,4,0,0">
-                <TextBlock Text="分P (-p)" VerticalAlignment="Center"/>
-                <TextBox Name="SelectPageBox" Grid.Column="1" Watermark="如: 1,2,10 或 1-3 或 ALL"/>
-              </Grid>
-              <Grid ColumnDefinitions="120,*" Margin="0,4,0,0">
-                <TextBlock Text="文件名 (-F)" VerticalAlignment="Center"/>
-                <TextBox Name="FilePatternBox" Grid.Column="1" Watermark="如: &lt;videoTitle&gt;[&lt;dfn&gt;]"/>
-              </Grid>
-            </StackPanel>
-          </Border>
-
-          <Expander Header="aria2c" IsExpanded="False" Margin="0,0,0,12">
-            <Grid ColumnDefinitions="160,*">
-              <TextBlock Text="参数" VerticalAlignment="Center"/>
-              <TextBox Name="Aria2cArgsBox" Grid.Column="1" Watermark="默认: -x16 -s16 -j16 -k 5M"/>
-            </Grid>
-          </Expander>
-
-          <Border Classes="card">
-            <StackPanel>
-              <TextBlock Classes="card-title" Text="高级设置（常用）"/>
-              <ScrollViewer>
-                <StackPanel Orientation="Vertical" Spacing="10">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="语言 (--language)" VerticalAlignment="Center"/>
-                  <TextBox Name="LanguageBox" Width="140"/>
-                  <TextBlock Text="UA (-ua)" VerticalAlignment="Center"/>
-                  <TextBox Name="UserAgentBox" Width="280"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="Cookie (-c)" VerticalAlignment="Center"/>
-                  <TextBox Name="CookieBox" Width="540"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="AccessToken (-token)" VerticalAlignment="Center"/>
-                  <TextBox Name="TokenBox" Width="540"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <CheckBox Name="UseMP4boxBox" Content="使用 MP4Box (--use-mp4box)"/>
-                  <TextBlock Text="编码优先级 (-e)" VerticalAlignment="Center"/>
-                  <TextBox Name="EncodingPriorityBox" Width="220" Watermark="如: hevc,av1,avc"/>
-                  <TextBlock Text="画质优先级 (-q)" VerticalAlignment="Center"/>
-                  <TextBox Name="DfnPriorityBox" Width="220" Watermark="如: 8K 超高清, HDR 真彩"/>
-                  <Button Name="PresetBestButton" Width="120" Height="28">最高画质</Button>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <CheckBox Name="ShowAllBox" Content="显示所有分P (--show-all)"/>
-                  <CheckBox Name="SimplyMuxBox" Content="精简混流 (--simply-mux)"/>
-                  <CheckBox Name="DanmakuOnlyBox" Content="仅弹幕 (--danmaku-only)"/>
-                  <CheckBox Name="CoverOnlyBox" Content="仅封面 (--cover-only)"/>
-                  <CheckBox Name="SubOnlyBox" Content="仅字幕 (--sub-only)"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <CheckBox Name="SkipMuxBox" Content="跳过混流 (--skip-mux)"/>
-                  <CheckBox Name="SkipSubtitleBox" Content="跳过字幕 (--skip-subtitle)"/>
-                  <CheckBox Name="SkipCoverBox" Content="跳过封面 (--skip-cover)"/>
-                  <CheckBox Name="ForceHttpBox" Content="强制使用 HTTP (--force-http)"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <CheckBox Name="DownloadDanmakuBox" Content="下载弹幕 (-dd)"/>
-                  <TextBlock Text="弹幕格式 (--download-danmaku-formats)" VerticalAlignment="Center"/>
-                  <TextBox Name="DanmakuFormatsBox" Width="280" Watermark="xml,ass"/>
-                  <CheckBox Name="SkipAiBox" Content="跳过 AI 字幕 (--skip-ai)"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <CheckBox Name="VideoAscendingBox" Content="视频升序 (--video-ascending)"/>
-                  <CheckBox Name="AudioAscendingBox" Content="音频升序 (--audio-ascending)"/>
-                  <CheckBox Name="AllowPcdnBox" Content="允许 PCDN (--allow-pcdn)"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="多P模板 (-M)" VerticalAlignment="Center"/>
-                  <TextBox Name="MultiFilePatternBox" Width="540"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="工作目录 (--work-dir)" VerticalAlignment="Center"/>
-                  <TextBox Name="WorkDirBox" Width="320"/>
-                  <Button Name="BrowseWorkDirButton" Width="80" Height="28">选择</Button>
-                  <TextBlock Text="延迟/秒 (--delay-per-page)" VerticalAlignment="Center"/>
-                  <TextBox Name="DelayPerPageBox" Width="120"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="ffmpeg 路径" VerticalAlignment="Center"/>
-                  <TextBox Name="FFmpegPathBox" Width="320"/>
-                  <Button Name="BrowseFFmpegButton" Width="80" Height="28">浏览</Button>
-                  <Button Name="TestFFmpegButton" Width="80" Height="28">测试</Button>
-                  <TextBlock Text="mp4box 路径" VerticalAlignment="Center"/>
-                  <TextBox Name="Mp4boxPathBox" Width="320"/>
-                  <Button Name="BrowseMp4boxButton" Width="80" Height="28">浏览</Button>
-                  <Button Name="TestMp4boxButton" Width="80" Height="28">测试</Button>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="aria2c 路径" VerticalAlignment="Center"/>
-                  <TextBox Name="Aria2cPathBox" Width="320"/>
-                  <Button Name="BrowseAria2cButton" Width="80" Height="28">浏览</Button>
-                  <Button Name="TestAria2cButton" Width="80" Height="28">测试</Button>
-                  <TextBlock Text="aria2c 参数" VerticalAlignment="Center"/>
-                  <TextBox Name="Aria2cArgsBoxAdv" Width="360"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="UPOS 主机 (--upos-host)" VerticalAlignment="Center"/>
-                  <TextBox Name="UposHostBox" Width="280"/>
-                  <CheckBox Name="ForceReplaceHostBox" Content="强制替换主机 (--force-replace-host)"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <CheckBox Name="SaveArchivesToFileBox" Content="保存下载记录 (--save-archives-to-file)"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="BiliPlus Host (--host)" VerticalAlignment="Center"/>
-                  <TextBox Name="HostBox" Width="280"/>
-                  <TextBlock Text="EP Host (--ep-host)" VerticalAlignment="Center"/>
-                  <TextBox Name="EpHostBox" Width="280"/>
-                  <TextBlock Text="TV Host (--tv-host)" VerticalAlignment="Center"/>
-                  <TextBox Name="TvHostBox" Width="280"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="Area (--area)" VerticalAlignment="Center"/>
-                  <TextBox Name="AreaBox" Width="140"/>
-                  <TextBlock Text="配置文件 (--config-file)" VerticalAlignment="Center"/>
-                  <TextBox Name="ConfigFileBox" Width="360"/>
-                  <Button Name="BrowseConfigFileButton" Width="80" Height="28">浏览</Button>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="CLI 路径" VerticalAlignment="Center"/>
-                  <TextBox Name="CliPathBox" Width="480"/>
-                  <Button Name="BrowseCliButton" Width="80" Height="28">浏览</Button>
-                  <Button Name="TestCliButton" Width="80" Height="28">测试</Button>
-                </StackPanel>
-                </StackPanel>
-              </ScrollViewer>
-            </StackPanel>
-          </Border>
-          <Expander Header="工具路径与目录" IsExpanded="False" Margin="0,0,0,8">
-            <Border Classes="card" Margin="0,4,0,0">
+    <Grid Grid.Row="1" ColumnDefinitions="1*,1*" Margin="0,16,0,0">
+      <TabControl Grid.Column="0">
+        <TabItem Header="常规">
+          <StackPanel Margin="0,8,0,0">
+            <Border Classes="card">
               <StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="工作目录" VerticalAlignment="Center"/>
-                  <TextBox Name="WorkDirBox" Width="320"/>
-                  <Button Name="BrowseWorkDirButton" Width="80" Height="32">选择</Button>
-                  <TextBox Name="DelayPerPageBox" Width="140" Watermark="延迟/秒"/>
+                <TextBlock Classes="card-title" Text="下载选项"/>
+                <WrapPanel Orientation="Horizontal">
+                  <CheckBox Name="OnlyInfoBox" Margin="0,0,12,0">
+                    <TextBlock>
+                      <Run Text="仅解析不下载 "/>
+            
+                    </TextBlock>
+                  </CheckBox>
+                  <CheckBox Name="MultiThreadBox" IsChecked="True" Margin="0,0,12,0">
+                    <TextBlock>
+                      <Run Text="多线程下载 "/>
+            
+                    </TextBlock>
+                  </CheckBox>
+                  <CheckBox Name="VideoOnlyBox" Margin="0,0,12,0">
+                    <TextBlock>
+                      <Run Text="仅视频 "/>
+            
+                    </TextBlock>
+                  </CheckBox>
+                  <CheckBox Name="AudioOnlyBox" Margin="0,0,12,0">
+                    <TextBlock>
+                      <Run Text="仅音频 "/>
+            
+                    </TextBlock>
+                  </CheckBox>
+                </WrapPanel>
+              </StackPanel>
+            </Border>
+            <Border Classes="card">
+              <StackPanel>
+                <TextBlock Classes="card-title" Text="命名与分P"/>
+                <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto" Margin="0,4,0,0">
+                  <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
+                      <Run Text="分P "/>
+
+                    <ToolTip.Tip>
+                      B站视频通常包含多个部分, 称为“分P”。
+                      在这里可以指定下载哪几个分P, 例如: 1,2,10 或 1-3。
+                      “ALL”代表全部下载。
+                    </ToolTip.Tip>
+                  </TextBlock>
+                  <TextBox Name="SelectPageBox" Grid.Row="0" Grid.Column="1" Watermark="如: 1,2,10 或 1-3 或 ALL"/>
+                  <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,8,0,0">
+                    <Run Text="文件名 "/>
+
+                  </TextBlock>
+                  <TextBox Name="FilePatternBox" Grid.Row="1" Grid.Column="1" Watermark="如: &lt;videoTitle&gt;[&lt;dfn&gt;]" Margin="0,8,0,0"/>
+                </Grid>
+              </StackPanel>
+            </Border>
+             <Border Classes="card">
+                <StackPanel>
+                  <TextBlock Classes="card-title" Text="其他"/>
+                  <StackPanel Orientation="Horizontal" Spacing="12">
+                    <CheckBox Name="ShowAllBox">
+                      <TextBlock>
+                        <Run Text="显示所有分P "/>
+
+                      </TextBlock>
+                    </CheckBox>
+                  </StackPanel>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="ffmpeg 路径" VerticalAlignment="Center"/>
-                  <TextBox Name="FFmpegPathBox" Width="320"/>
-                  <Button Name="BrowseFFmpegButton" Width="80" Height="32">浏览</Button>
-                  <Button Name="TestFFmpegButton" Width="80" Height="32">测试</Button>
+              </Border>
+          </StackPanel>
+        </TabItem>
+        <TabItem Header="下载">
+          <StackPanel Margin="0,8,0,0">
+            <Border Classes="card">
+              <StackPanel>
+                <TextBlock Classes="card-title" Text="下载方式"/>
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                  <CheckBox Name="UseAria2cBox">
+                    <TextBlock>
+                      <Run Text="使用 aria2c "/>
+
+                    </TextBlock>
+                  </CheckBox>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="mp4box 路径" VerticalAlignment="Center"/>
-                  <TextBox Name="Mp4boxPathBox" Width="320"/>
-                  <Button Name="BrowseMp4boxButton" Width="80" Height="32">浏览</Button>
-                  <Button Name="TestMp4boxButton" Width="80" Height="32">测试</Button>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="aria2c 路径" VerticalAlignment="Center"/>
-                  <TextBox Name="Aria2cPathBox" Width="320"/>
-                  <Button Name="BrowseAria2cButton" Width="80" Height="32">浏览</Button>
-                  <Button Name="TestAria2cButton" Width="80" Height="32">测试</Button>
-                  <TextBlock Text="参数" VerticalAlignment="Center"/>
-                  <TextBox Name="Aria2cArgsBoxAdv" Width="360"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="CLI 路径" VerticalAlignment="Center"/>
-                  <TextBox Name="CliPathBox" Width="480"/>
-                  <Button Name="BrowseCliButton" Width="80" Height="32">浏览</Button>
-                  <Button Name="TestCliButton" Width="80" Height="32">测试</Button>
+                <Grid ColumnDefinitions="120,*" Margin="0,4,0,0">
+                  <TextBlock VerticalAlignment="Center">
+                    <Run Text="aria2c 参数"/>
+                  </TextBlock>
+                  <TextBox Name="Aria2cArgsBox" Grid.Column="1" Watermark="默认: -x16 -s16 -j16 -k 5M"/>
+                </Grid>
+              </StackPanel>
+            </Border>
+            <Border Classes="card">
+              <StackPanel>
+                <TextBlock Classes="card-title" Text="混流"/>
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                  <CheckBox Name="UseMP4boxBox">
+                    <TextBlock>
+                      <Run Text="使用 MP4Box "/>
+
+                    </TextBlock>
+                  </CheckBox>
+                  <CheckBox Name="SimplyMuxBox">
+                    <TextBlock>
+                      <Run Text="精简混流 "/>
+
+                    </TextBlock>
+                  </CheckBox>
+                  <CheckBox Name="SkipMuxBox">
+                    <TextBlock>
+                      <Run Text="跳过混流 "/>
+
+                    </TextBlock>
+                  </CheckBox>
                 </StackPanel>
               </StackPanel>
             </Border>
-          </Expander>
-
-          <Expander Header="网络与主机（可选）" IsExpanded="False" Margin="0,0,0,8">
-            <Border Classes="card" Margin="0,4,0,0">
+            <Border Classes="card">
               <StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="UPOS 主机" VerticalAlignment="Center"/>
-                  <TextBox Name="UposHostBox" Width="280"/>
-                  <CheckBox Name="ForceReplaceHostBox" Content="强制替换主机"/>
+                <TextBlock Classes="card-title" Text="内容选择"/>
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                  <CheckBox Name="DanmakuOnlyBox">
+                    <TextBlock>
+                      <Run Text="仅弹幕 "/>
+
+                    </TextBlock>
+                  </CheckBox>
+                  <CheckBox Name="CoverOnlyBox">
+                    <TextBlock>
+                      <Run Text="仅封面 "/>
+
+                    </TextBlock>
+                  </CheckBox>
+                  <CheckBox Name="SubOnlyBox">
+                    <TextBlock>
+                      <Run Text="仅字幕 "/>
+
+                    </TextBlock>
+                  </CheckBox>
+                  <CheckBox Name="SkipCoverBox">
+                    <TextBlock>
+                      <Run Text="跳过封面 "/>
+            
+                    </TextBlock>
+                  </CheckBox>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <CheckBox Name="SaveArchivesToFileBox" Content="保存下载记录"/>
+                <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+                  <CheckBox Name="DownloadDanmakuBox">
+                    <TextBlock>
+                      <Run Text="下载弹幕 "/>
+
+                    </TextBlock>
+                  </CheckBox>
+                  <CheckBox Name="SkipSubtitleBox">
+                    <TextBlock>
+                      <Run Text="跳过字幕 "/>
+
+                    </TextBlock>
+                  </CheckBox>
+                  <CheckBox Name="SkipAiBox">
+                    <TextBlock>
+                      <Run Text="跳过 AI 字幕 "/>
+
+                    </TextBlock>
+                  </CheckBox>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="BiliPlus Host" VerticalAlignment="Center"/>
-                  <TextBox Name="HostBox" Width="280"/>
-                  <TextBlock Text="EP Host" VerticalAlignment="Center"/>
-                  <TextBox Name="EpHostBox" Width="280"/>
-                  <TextBlock Text="TV Host" VerticalAlignment="Center"/>
-                  <TextBox Name="TvHostBox" Width="280"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="Area" VerticalAlignment="Center"/>
-                  <TextBox Name="AreaBox" Width="140"/>
-                  <TextBlock Text="配置文件" VerticalAlignment="Center"/>
-                  <TextBox Name="ConfigFileBox" Width="360"/>
-                  <Button Name="BrowseConfigFileButton" Width="80" Height="32">浏览</Button>
+                <Grid ColumnDefinitions="120,*" Margin="0,4,0,0">
+                  <TextBlock VerticalAlignment="Center">
+                    <Run Text="弹幕格式"/>
+                  </TextBlock>
+                  <TextBox Name="DanmakuFormatsBox" Grid.Column="1" Watermark="xml,ass"/>
+                </Grid>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </TabItem>
+        <TabItem Header="画质">
+          <StackPanel Margin="0,8,0,0">
+            <Border Classes="card">
+              <StackPanel>
+                <TextBlock Classes="card-title" Text="优先级设置"/>
+                <Grid ColumnDefinitions="120,*,Auto" RowDefinitions="Auto,Auto" Margin="0,4,0,0">
+                  <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
+                    <Run Text="编码优先级 "/>
+
+                  </TextBlock>
+                  <TextBox Name="EncodingPriorityBox" Grid.Row="0" Grid.Column="1" Watermark="如: hevc,av1,avc"/>
+                  <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,8,0,0">
+                    <Run Text="画质优先级 "/>
+
+                  </TextBlock>
+                  <TextBox Name="DfnPriorityBox" Grid.Row="1" Grid.Column="1" Watermark="如: 8K 超高清, HDR 真彩" Margin="0,8,0,0"/>
+                  <Button Name="PresetBestButton" Grid.Row="1" Grid.Column="2" Width="120" Height="32" Margin="8,8,0,0">最高画质</Button>
+                </Grid>
+              </StackPanel>
+            </Border>
+            <Border Classes="card">
+              <StackPanel>
+                <TextBlock Classes="card-title" Text="排序"/>
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                  <CheckBox Name="VideoAscendingBox">
+                    <TextBlock>
+                      <Run Text="视频升序 "/>
+
+                    </TextBlock>
+                  </CheckBox>
+                  <CheckBox Name="AudioAscendingBox">
+                    <TextBlock>
+                      <Run Text="音频升序 "/>
+
+                    </TextBlock>
+                  </CheckBox>
                 </StackPanel>
               </StackPanel>
             </Border>
-          </Expander>
-        </StackPanel>
-      </ScrollViewer>
+          </StackPanel>
+        </TabItem>
+        <TabItem Header="网络">
+          <StackPanel Margin="0,8,0,0">
+            <Border Classes="card">
+              <StackPanel>
+                <TextBlock Classes="card-title" Text="身份认证"/>
+                <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto" Margin="0,4,0,0">
+                  <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
+                    <Run Text="Cookie "/>
+
+                  </TextBlock>
+                  <TextBox Name="CookieBox" Grid.Row="0" Grid.Column="1"/>
+                  <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,8,0,0">
+                    <Run Text="AccessToken "/>
+
+                  </TextBlock>
+                  <TextBox Name="TokenBox" Grid.Row="1" Grid.Column="1" Margin="0,8,0,0"/>
+                </Grid>
+              </StackPanel>
+            </Border>
+            <Border Classes="card">
+              <StackPanel>
+                <TextBlock Classes="card-title" Text="主机/服务器"/>
+                <Grid ColumnDefinitions="120,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,4,0,0">
+                  <TextBlock Grid.Row="0" Grid.Column="0" Text="UPOS 主机" VerticalAlignment="Center"/>
+                  <TextBox Name="UposHostBox" Grid.Row="0" Grid.Column="1"/>
+                  <TextBlock Grid.Row="1" Grid.Column="0" Text="BiliPlus Host" VerticalAlignment="Center" Margin="0,8,0,0"/>
+                  <TextBox Name="HostBox" Grid.Row="1" Grid.Column="1" Margin="0,8,0,0"/>
+                  <TextBlock Grid.Row="2" Grid.Column="0" Text="EP Host" VerticalAlignment="Center" Margin="0,8,0,0"/>
+                  <TextBox Name="EpHostBox" Grid.Row="2" Grid.Column="1" Margin="0,8,0,0"/>
+                  <TextBlock Grid.Row="3" Grid.Column="0" Text="TV Host" VerticalAlignment="Center" Margin="0,8,0,0"/>
+                  <TextBox Name="TvHostBox" Grid.Row="3" Grid.Column="1" Margin="0,8,0,0"/>
+                </Grid>
+                 <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+                    <CheckBox Name="ForceReplaceHostBox">
+                      <TextBlock>
+                        <Run Text="强制替换主机 "/>
+
+                      </TextBlock>
+                    </CheckBox>
+                 </StackPanel>
+              </StackPanel>
+            </Border>
+            <Border Classes="card">
+              <StackPanel>
+                <TextBlock Classes="card-title" Text="其他"/>
+                <Grid ColumnDefinitions="120,*" RowDefinitions="Auto" Margin="0,4,0,0">
+                    <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
+                      <Run Text="Area "/>
+
+                    </TextBlock>
+                    <TextBox Name="AreaBox" Grid.Row="0" Grid.Column="1"/>
+                </Grid>
+                <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+                  <CheckBox Name="AllowPcdnBox">
+                    <TextBlock>
+                      <Run Text="允许 PCDN "/>
+
+                    </TextBlock>
+                  </CheckBox>
+                  <CheckBox Name="ForceHttpBox">
+                    <TextBlock>
+                      <Run Text="强制使用 HTTP "/>
+
+                    </TextBlock>
+                  </CheckBox>
+                </StackPanel>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </TabItem>
+        <TabItem Header="高级">
+          <ScrollViewer>
+            <StackPanel Margin="0,8,0,0">
+              <Border Classes="card">
+                <StackPanel>
+                  <TextBlock Classes="card-title" Text="路径设置"/>
+                  <Grid ColumnDefinitions="120,*,Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,4,0,0">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="工作目录" VerticalAlignment="Center"/>
+                    <TextBox Name="WorkDirBox" Grid.Row="0" Grid.Column="1"/>
+                    <Button Name="BrowseWorkDirButton" Grid.Row="0" Grid.Column="2" Width="80" Height="32" Margin="8,0,0,0">选择</Button>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="ffmpeg 路径" VerticalAlignment="Center" Margin="0,8,0,0"/>
+                    <TextBox Name="FFmpegPathBox" Grid.Row="1" Grid.Column="1" Margin="0,8,0,0"/>
+                    <Button Name="BrowseFFmpegButton" Grid.Row="1" Grid.Column="2" Width="80" Height="32" Margin="8,8,0,0">浏览</Button>
+                    <Button Name="TestFFmpegButton" Grid.Row="1" Grid.Column="3" Width="80" Height="32" Margin="8,8,0,0">测试</Button>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="mp4box 路径" VerticalAlignment="Center" Margin="0,8,0,0"/>
+                    <TextBox Name="Mp4boxPathBox" Grid.Row="2" Grid.Column="1" Margin="0,8,0,0"/>
+                    <Button Name="BrowseMp4boxButton" Grid.Row="2" Grid.Column="2" Width="80" Height="32" Margin="8,8,0,0">浏览</Button>
+                    <Button Name="TestMp4boxButton" Grid.Row="2" Grid.Column="3" Width="80" Height="32" Margin="8,8,0,0">测试</Button>
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="aria2c 路径" VerticalAlignment="Center" Margin="0,8,0,0"/>
+                    <TextBox Name="Aria2cPathBox" Grid.Row="3" Grid.Column="1" Margin="0,8,0,0"/>
+                    <Button Name="BrowseAria2cButton" Grid.Row="3" Grid.Column="2" Width="80" Height="32" Margin="8,8,0,0">浏览</Button>
+                    <Button Name="TestAria2cButton" Grid.Row="3" Grid.Column="3" Width="80" Height="32" Margin="8,8,0,0">测试</Button>
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="CLI 路径" VerticalAlignment="Center" Margin="0,8,0,0"/>
+                    <TextBox Name="CliPathBox" Grid.Row="4" Grid.Column="1" Margin="0,8,0,0"/>
+                    <Button Name="BrowseCliButton" Grid.Row="4" Grid.Column="2" Width="80" Height="32" Margin="8,8,0,0">浏览</Button>
+                    <Button Name="TestCliButton" Grid.Row="4" Grid.Column="3" Width="80" Height="32" Margin="8,8,0,0">测试</Button>
+                  </Grid>
+                </StackPanel>
+              </Border>
+              <Border Classes="card">
+                <StackPanel>
+                  <TextBlock Classes="card-title" Text="杂项"/>
+                  <Grid ColumnDefinitions="120,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,4,0,0">
+                    <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
+                      <Run Text="语言 "/>
+
+                    </TextBlock>
+                    <TextBox Name="LanguageBox" Grid.Row="0" Grid.Column="1"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,8,0,0">
+                      <Run Text="多P模板 "/>
+
+                    </TextBlock>
+                    <TextBox Name="MultiFilePatternBox" Grid.Row="1" Grid.Column="1" Margin="0,8,0,0"/>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="延迟/秒" VerticalAlignment="Center" Margin="0,8,0,0"/>
+                    <TextBox Name="DelayPerPageBox" Grid.Row="2" Grid.Column="1" Margin="0,8,0,0"/>
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="配置文件" VerticalAlignment="Center" Margin="0,8,0,0"/>
+                    <TextBox Name="ConfigFileBox" Grid.Row="3" Grid.Column="1" Margin="0,8,0,0"/>
+                  </Grid>
+                  <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+                    <CheckBox Name="SaveArchivesToFileBox">
+                    <TextBlock>
+                      <Run Text="保存下载记录 "/>
+
+                    </TextBlock>
+                  </CheckBox>
+                    <CheckBox Name="DebugBox">
+                    <TextBlock>
+                      <Run Text="调试日志 "/>
+
+                    </TextBlock>
+                  </CheckBox>
+                  </StackPanel>
+
+                </StackPanel>
+              </Border>
+            </StackPanel>
+          </ScrollViewer>
+        </TabItem>
+      </TabControl>
 
       <Grid Grid.Column="1" RowDefinitions="Auto,*" Margin="12,0,0,0">
         <StackPanel Orientation="Horizontal" Spacing="12">
           <Button Name="StartButton" Width="160" Classes="primary">开始</Button>
-          <Button Name="StopButton" Width="120" Classes="outline">停止</Button>
+          <Button Name="StopButton" Width="120" Classes="danger">停止</Button>
         </StackPanel>
-        <TextBox Name="LogBox" Grid.Row="1" AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" IsReadOnly="True" FontFamily="Menlo,Consolas" TextWrapping="Wrap"/>
+        <TextBox Name="LogBox" Grid.Row="1" MinHeight="200" AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" IsReadOnly="True" FontFamily="Menlo,Consolas" TextWrapping="Wrap"/>
       </Grid>
     </Grid>
 
