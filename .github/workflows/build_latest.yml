@@ -121,7 +121,7 @@ jobs:
 
   build-gui-mac:
     name: Build GUI for macOS
-    runs-on: ${{ matrix.rid == 'osx-x64' && 'macos-13' || 'macos-14' }}
+    runs-on: macos-15
     strategy:
       matrix:
         rid: [ osx-arm64, osx-x64 ]
