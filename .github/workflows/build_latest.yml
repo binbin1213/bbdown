@@ -149,16 +149,9 @@ jobs:
       - name: Download Tools
         run: |
           # Define URLs
-          FFMPEG_URL=""
           ARIA2_URL="https://github.com/h404bi/aria2-static-build-macos/releases/download/v1.36.0/aria2-1.36.0-macos-x86_64.tar.gz"
           
-          # Use x64 build for both x64 and arm64 (Rosetta 2 compatible)
-          # Using evermeet.cx which is a stable source for macOS builds
-          FFMPEG_URL="https://evermeet.cx/ffmpeg/ffmpeg-7.1.zip"
-          
-          # Download and install FFmpeg
-          curl -L -o ffmpeg.zip "$FFMPEG_URL"
-          unzip ffmpeg.zip
+          # Use local FFmpeg (Version 8) from project root
           chmod +x ffmpeg
           APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS"
           mkdir -p "$APP_DIR"
