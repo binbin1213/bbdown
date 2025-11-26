@@ -150,22 +150,22 @@ jobs:
         run: |
           # Define URLs
           if [ "${{ matrix.rid }}" = "osx-arm64" ]; then FFMPEG_URL="https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/snapshot/ffmpeg.zip"; else FFMPEG_URL="https://ffmpeg.martin-riedl.de/redirect/latest/macos/amd64/snapshot/ffmpeg.zip"; fi
-          ARIA2_URL="https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-osx-darwin.tar.bz2"
+          ARIA2_URL="https://github.com/aria2/aria2/releases/download/release-1.35.0/aria2-1.35.0-osx-darwin.tar.bz2"
           
           APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS"
           mkdir -p "$APP_DIR"
 
           # Download and install FFmpeg
           curl -L -o ffmpeg.zip "$FFMPEG_URL"
-          unzip -o -o ffmpeg.zip
+          unzip -o ffmpeg.zip
           chmod +x ffmpeg
           cp ffmpeg "$APP_DIR/"
           
           # Download and install Aria2c
           curl -L -o aria2.tar.bz2 "$ARIA2_URL"
-          tar xjf aria2.tar.bz2
-          chmod +x aria2-1.37.0-osx-darwin/aria2c
-          cp aria2-1.37.0-osx-darwin/aria2c "$APP_DIR/"
+          tar xjf aria2.tar.bz2 --strip-components=1
+          chmod +x aria2c
+          cp aria2c "$APP_DIR/"
           
       - name: Publish CLI for same RID
         run: |
@@ -214,22 +214,22 @@ jobs:
         run: |
           # Define URLs
           if [ "${{ matrix.rid }}" = "osx-arm64" ]; then FFMPEG_URL="https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/snapshot/ffmpeg.zip"; else FFMPEG_URL="https://ffmpeg.martin-riedl.de/redirect/latest/macos/amd64/snapshot/ffmpeg.zip"; fi
-          ARIA2_URL="https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-osx-darwin.tar.bz2"
+          ARIA2_URL="https://github.com/aria2/aria2/releases/download/release-1.35.0/aria2-1.35.0-osx-darwin.tar.bz2"
           
           APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS"
           mkdir -p "$APP_DIR"
 
           # Download and install FFmpeg
           curl -L -o ffmpeg.zip "$FFMPEG_URL"
-          unzip ffmpeg.zip
+          unzip -o ffmpeg.zip
           chmod +x ffmpeg
           cp ffmpeg "$APP_DIR/"
           
           # Download and install Aria2c
           curl -L -o aria2.tar.bz2 "$ARIA2_URL"
-          tar xjf aria2.tar.bz2
-          chmod +x aria2-1.37.0-osx-darwin/aria2c
-          cp aria2-1.37.0-osx-darwin/aria2c "$APP_DIR/"
+          tar xjf aria2.tar.bz2 --strip-components=1
+          chmod +x aria2c
+          cp aria2c "$APP_DIR/"
           
       - name: Publish CLI for same RID
         run: |
