@@ -157,7 +157,7 @@ jobs:
 
           # Download and install FFmpeg
           curl -L -o ffmpeg.zip "$FFMPEG_URL"
-          unzip ffmpeg.zip
+          unzip -o -o ffmpeg.zip
           chmod +x ffmpeg
           cp ffmpeg "$APP_DIR/"
           
