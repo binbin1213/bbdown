@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AvaloniaResource Include="Assets\logo.png" />
+    <AvaloniaResource Include="Assets/logo.png" />
     <None Include="Assets\logo.icns">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

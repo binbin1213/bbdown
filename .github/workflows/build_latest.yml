@@ -146,6 +146,8 @@ jobs:
             -property:Configuration=Release \
             -p:DebugType=None \
             -p:UseSharedCompilation=false
+      - name: Debug list publish dir
+        run: ls -lR BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/
       - name: Download Tools
         run: |
           # Define URLs
