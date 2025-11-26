@@ -213,15 +213,15 @@ jobs:
       - name: Download Tools
         run: |
           # Define URLs
-          FFMPEG_URL="https://evermeet.cx/ffmpeg/ffmpeg-7.0.7z"
+          if [ "${{ matrix.rid }}" = "osx-arm64" ]; then FFMPEG_URL="https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/snapshot/ffmpeg.zip"; else FFMPEG_URL="https://ffmpeg.martin-riedl.de/redirect/latest/macos/amd64/snapshot/ffmpeg.zip"; fi
           ARIA2_URL="https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-osx-darwin.tar.bz2"
           
           APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS"
           mkdir -p "$APP_DIR"
 
           # Download and install FFmpeg
-          curl -L -o ffmpeg.7z "$FFMPEG_URL"
-          7z x ffmpeg.7z
+          curl -L -o ffmpeg.zip "$FFMPEG_URL"
+          unzip ffmpeg.zip
           chmod +x ffmpeg
           cp ffmpeg "$APP_DIR/"
           
