@@ -149,7 +149,7 @@ jobs:
       - name: Download Tools
         run: |
           # Define URLs
-          ARIA2_URL="https://github.com/h404bi/aria2-static-build-macos/releases/download/v1.36.0/aria2-1.36.0-macos-x86_64.tar.gz"
+          ARIA2_URL="https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-osx-darwin.tar.bz2"
           
           # Use local FFmpeg (Version 8) from project root
           chmod +x ffmpeg
@@ -157,11 +157,71 @@ jobs:
           mkdir -p "$APP_DIR"
           cp ffmpeg "$APP_DIR/"
           
-          # Download and install Aria2c (using x64 static build for both, Rosetta handles it on ARM)
-          curl -L -o aria2.tar.gz "$ARIA2_URL"
-          tar xzf aria2.tar.gz
-          chmod +x aria2c
-          cp aria2c "$APP_DIR/"
+          # Download and install Aria2c
+          curl -L -o aria2.tar.bz2 "$ARIA2_URL"
+          tar xjf aria2.tar.bz2
+          chmod +x aria2-1.37.0-osx-darwin/aria2c
+          cp aria2-1.37.0-osx-darwin/aria2c "$APP_DIR/"
+          
+      - name: Publish CLI for same RID
+        run: |
+          dotnet publish BBDown/BBDown.csproj -c Release -r ${{ matrix.rid }} /p:SelfContained=true /p:PublishSingleFile=true /p:DebugType=None -o BBDown-cli
+          APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS" \
+            && cp BBDown-cli/BBDown "$APP_DIR/BBDown"
+      - name: Create DMG
+        run: |
+          APP_PATH="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app" \
+            && DMG_NAME="BBDown.GUI-${{ matrix.rid }}.dmg" \
+            && hdiutil create -volname "BBDown" -srcfolder "$APP_PATH" -ov -format UDZO "$DMG_NAME"
+      - name: Upload DMG Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BBDown.GUI-${{ matrix.rid }}
+          path: BBDown.GUI-${{ matrix.rid }}.dmg
+          retention-days: 3
+
+  build-gui-mac-local:
+    name: Build GUI for macOS (Local)
+    if: ${{ github.repository_owner == 'your-username' }} # Replace with your GitHub username
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        rid: [ osx-arm64, osx-x64 ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+      - name: Restore (with RID)
+        run: dotnet restore BBDown.GUI/BBDown.GUI.csproj -r ${{ matrix.rid }}
+      - name: Create .app bundle
+        run: |
+          dotnet msbuild BBDown.GUI/BBDown.GUI.csproj -t:BundleApp \
+            -p:RuntimeIdentifier=${{ matrix.rid }} \
+            -p:UseAppHost=true \
+            -p:SelfContained=true \
+            -property:Configuration=Release \
+            -p:DebugType=None \
+            -p:UseSharedCompilation=false
+      - name: Download Tools
+        run: |
+          # Define URLs
+          ARIA2_URL="https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-osx-darwin.tar.bz2"
+          
+          # Use local FFmpeg (Version 8) from project root
+          chmod +x ffmpeg
+          APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS"
+          mkdir -p "$APP_DIR"
+          cp ffmpeg "$APP_DIR/"
+          
+          # Download and install Aria2c
+          curl -L -o aria2.tar.bz2 "$ARIA2_URL"
+          tar xjf aria2.tar.bz2
+          chmod +x aria2-1.37.0-osx-darwin/aria2c
+          cp aria2-1.37.0-osx-darwin/aria2c "$APP_DIR/"
           
       - name: Publish CLI for same RID
         run: |
