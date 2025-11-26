@@ -52,7 +52,6 @@ jobs:
   build-gui-win:
     name: Build GUI for Windows
     runs-on: windows-latest
-    needs: build-cli-win
     steps:
       - uses: actions/checkout@v4
       - name: Set up .NET
@@ -63,13 +62,30 @@ jobs:
           cache-dependency-path: '**/*.csproj'
       - name: Restore dependencies
         run: dotnet restore BBDown.GUI/BBDown.GUI.csproj
-      - name: Publish
-        run: dotnet publish BBDown.GUI/BBDown.GUI.csproj -c Release -r win-x64 /p:SelfContained=true /p:PublishTrimmed=false /p:PublishSingleFile=true
+      - name: Publish GUI
+        run: dotnet publish BBDown.GUI/BBDown.GUI.csproj -c Release -r win-x64 /p:SelfContained=true /p:PublishTrimmed=false /p:PublishSingleFile=true /p:DebugType=None
+      - name: Publish CLI and Bundle
+        run: |
+          dotnet publish BBDown/BBDown.csproj -c Release -r win-x64 /p:SelfContained=true /p:PublishTrimmed=false /p:PublishSingleFile=true /p:DebugType=None -o BBDown-cli
+          copy BBDown-cli\BBDown.exe BBDown.GUI\bin\Release\net9.0\win-x64\publish\BBDown.exe
+      - name: Download Tools
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip" -OutFile "ffmpeg.zip"
+          Expand-Archive "ffmpeg.zip" -DestinationPath "."
+          copy "ffmpeg-master-latest-win64-gpl/bin/ffmpeg.exe" "BBDown.GUI/bin/Release/net9.0/win-x64/publish/ffmpeg.exe"
+          
+          Invoke-WebRequest -Uri "https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-win-64bit-build1.zip" -OutFile "aria2.zip"
+          Expand-Archive "aria2.zip" -DestinationPath "."
+          copy "aria2-1.37.0-win-64bit-build1/aria2c.exe" "BBDown.GUI/bin/Release/net9.0/win-x64/publish/aria2c.exe"
+      - name: Package
+        run: |
+          cd BBDown.GUI/bin/Release/net9.0/win-x64/publish
+          powershell Compress-Archive -Path * -DestinationPath ../BBDown.GUI-win-x64.zip
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BBDown.GUI-win-x64
-          path: BBDown.GUI/bin/Release/net9.0/win-x64/publish
+          path: BBDown.GUI/bin/Release/net9.0/win-x64/BBDown.GUI-win-x64.zip
           retention-days: 3
 
   build-cli-mac:
@@ -105,8 +121,7 @@ jobs:
 
   build-gui-mac:
     name: Build GUI for macOS
-    runs-on: macos-latest
-    needs: build-cli-mac
+    runs-on: ${{ matrix.rid == 'osx-x64' && 'macos-13' || 'macos-14' }}
     strategy:
       matrix:
         rid: [ osx-arm64, osx-x64 ]
@@ -126,17 +141,39 @@ jobs:
             -p:RuntimeIdentifier=${{ matrix.rid }} \
             -p:UseAppHost=true \
             -p:SelfContained=true \
-            -property:Configuration=Release
+            -property:Configuration=Release \
+            -p:DebugType=None
+      - name: Download Tools
+        run: |
+          # Define URLs
+          FFMPEG_URL=""
+          ARIA2_URL="https://github.com/h404bi/aria2-static-build-macos/releases/download/v1.36.0/aria2-1.36.0-macos-x86_64.tar.gz"
+          
+          if [ "${{ matrix.rid }}" == "osx-x64" ]; then
+            FFMPEG_URL="https://github.com/wader/static-ffmpeg/releases/download/v7.1/ffmpeg-release-macos-amd64.zip"
+          else
+            FFMPEG_URL="https://github.com/wader/static-ffmpeg/releases/download/v7.1/ffmpeg-release-macos-arm64.zip"
+          fi
+          
+          # Download and install FFmpeg
+          curl -L -o ffmpeg.zip "$FFMPEG_URL"
+          unzip ffmpeg.zip
+          chmod +x ffmpeg
+          APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS"
+          mkdir -p "$APP_DIR"
+          cp ffmpeg "$APP_DIR/"
+          
+          # Download and install Aria2c (using x64 static build for both, Rosetta handles it on ARM)
+          curl -L -o aria2.tar.gz "$ARIA2_URL"
+          tar xzf aria2.tar.gz
+          chmod +x aria2c
+          cp aria2c "$APP_DIR/"
+          
       - name: Publish CLI for same RID
         run: |
-          dotnet publish BBDown/BBDown.csproj -c Release -r ${{ matrix.rid }} /p:SelfContained=true /p:PublishSingleFile=true -o BBDown-cli
+          dotnet publish BBDown/BBDown.csproj -c Release -r ${{ matrix.rid }} /p:SelfContained=true /p:PublishSingleFile=true /p:DebugType=None -o BBDown-cli
           APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS" \
             && cp BBDown-cli/BBDown "$APP_DIR/BBDown"
-      - name: Add external tools into .app
-        run: |
-          APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS" \
-            && mkdir -p "$APP_DIR" \
-            && for t in ffmpeg MP4Box aria2c; do [ -f "$t" ] && cp "$t" "$APP_DIR/$t" || true; done
       - name: Create DMG
         run: |
           APP_PATH="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app" \

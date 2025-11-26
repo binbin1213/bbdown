@@ -16,7 +16,7 @@ using static BBDown.Core.Util.HTTPUtil;
 
 namespace BBDown;
 
-static partial class BBDownUtil
+public static partial class BBDownUtil
 {
     public static async Task CheckUpdateAsync()
     {

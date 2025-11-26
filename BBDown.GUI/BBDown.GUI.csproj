@@ -12,13 +12,23 @@
     <CFBundleExecutable>BBDown.GUI</CFBundleExecutable>
     <NSPrincipalClass>NSApplication</NSPrincipalClass>
     <NSHighResolutionCapable>true</NSHighResolutionCapable>
+    <ApplicationIcon>Assets\logo.ico</ApplicationIcon>
+    <CFBundleIconFile>logo.icns</CFBundleIconFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\logo.png" />
+    <None Include="Assets\logo.icns">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.0.6" />
     <PackageReference Include="Avalonia.Desktop" Version="11.0.6" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.6" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.6" />
+    <PackageReference Include="QRCoder" Version="1.6.0" />
     <PackageReference Include="Dotnet.Bundle" Version="0.9.13" PrivateAssets="all" />
   </ItemGroup>
 

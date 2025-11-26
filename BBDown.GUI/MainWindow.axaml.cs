@@ -9,12 +9,23 @@ using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.Interactivity;
 using BBDown.Core;
+using System.Net.Http;
+using System.Linq;
+using System.Text.Json;
+using System.Collections.Specialized;
+using BBDown.Core.Util;
+using QRCoder;
+using static BBDown.BBDownUtil;
 
 namespace BBDown.GUI;
 
 public partial class MainWindow : Window
 {
     private CancellationTokenSource? _cts;
+    private CancellationTokenSource? _loginCts;
+    private string _ffmpegPath = "";
+    private string _mp4boxPath = "";
+    private string _aria2cPath = "";
 
     public MainWindow()
     {
@@ -22,24 +33,165 @@ public partial class MainWindow : Window
         ApiTypeBox.SelectedIndex = 0;
         StartButton.Click += OnStart;
         StopButton.Click += OnStop;
-        TestFFmpegButton.Click += async (_, __) => await TestBinary(string.IsNullOrWhiteSpace(FFmpegPathBox.Text) ? "ffmpeg" : FFmpegPathBox.Text!, "-version");
-        TestMp4boxButton.Click += async (_, __) => await TestBinary(string.IsNullOrWhiteSpace(Mp4boxPathBox.Text) ? "MP4Box" : Mp4boxPathBox.Text!, "-version");
-        TestAria2cButton.Click += async (_, __) => await TestBinary(string.IsNullOrWhiteSpace(Aria2cPathBox.Text) ? "aria2c" : Aria2cPathBox.Text!, "-v");
-        PresetBestButton.Click += (_, __) => ApplyBestPreset();
-        TestCliButton.Click += async (_, __) => await TestBinary(string.IsNullOrWhiteSpace(CliPathBox.Text) ? "BBDown" : CliPathBox.Text!, "--version");
-        BrowseFFmpegButton.Click += async (_, __) => FFmpegPathBox.Text = await PickFileAsync("选择 ffmpeg") ?? FFmpegPathBox.Text;
-        BrowseMp4boxButton.Click += async (_, __) => Mp4boxPathBox.Text = await PickFileAsync("选择 MP4Box") ?? Mp4boxPathBox.Text;
-        BrowseAria2cButton.Click += async (_, __) => Aria2cPathBox.Text = await PickFileAsync("选择 aria2c") ?? Aria2cPathBox.Text;
-
+        
         BrowseWorkDirButton.Click += async (_, __) => WorkDirBox.Text = await PickFolderAsync("选择工作目录") ?? WorkDirBox.Text;
-        BrowseCliButton.Click += async (_, __) => CliPathBox.Text = await PickFileAsync("选择 BBDown 可执行文件") ?? CliPathBox.Text;
-        var cwd = Environment.CurrentDirectory;
-        var fp = Path.Combine(cwd, "ffmpeg");
-        if (File.Exists(fp)) FFmpegPathBox.Text = fp;
-        var mp = Path.Combine(cwd, "MP4Box");
-        if (File.Exists(mp)) Mp4boxPathBox.Text = mp;
-        var ap = Path.Combine(cwd, "aria2c");
-        if (File.Exists(ap)) Aria2cPathBox.Text = ap;
+
+        // 默认启用最高画质相关设置
+        UseAria2cBox.IsChecked = true;
+        if (string.IsNullOrWhiteSpace(Aria2cArgsBox.Text)) Aria2cArgsBox.Text = "-x16 -s16 -j16 -k5M";
+
+        // 优先使用 AppContext.BaseDirectory (程序所在目录) 以支持打包后的场景
+        // 备选使用 Environment.CurrentDirectory (当前工作目录) 以支持开发环境直接运行
+        var searchDirs = new[] { AppContext.BaseDirectory, Environment.CurrentDirectory };
+        
+        foreach (var dir in searchDirs)
+        {
+            if (string.IsNullOrEmpty(_ffmpegPath))
+            {
+                var fp = Path.Combine(dir, "ffmpeg");
+                if (File.Exists(fp)) _ffmpegPath = fp;
+            }
+            
+            if (string.IsNullOrEmpty(_mp4boxPath))
+            {
+                var mp = Path.Combine(dir, "MP4Box");
+                if (File.Exists(mp)) _mp4boxPath = mp;
+            }
+            
+            if (string.IsNullOrEmpty(_aria2cPath))
+            {
+                var ap = Path.Combine(dir, "aria2c");
+                if (File.Exists(ap)) _aria2cPath = ap;
+            }
+        }
+    }
+
+    private async void LoginWeb_Click(object? sender, RoutedEventArgs e)
+    {
+        await LoginAsync(false);
+    }
+
+    private async void LoginTV_Click(object? sender, RoutedEventArgs e)
+    {
+        await LoginAsync(true);
+    }
+
+    private async Task LoginAsync(bool isTv)
+    {
+        try { _loginCts?.Cancel(); } catch { }
+        _loginCts = new CancellationTokenSource();
+        var token = _loginCts.Token;
+
+        QrCodePanel.IsVisible = true;
+        QrCodeStatusLabel.Text = "正在获取登录地址...";
+        QrCodeImage.Source = null;
+
+        try
+        {
+            if (isTv)
+            {
+                 // TV Login Logic
+                 string loginUrl = "https://passport.snm0516.aisee.tv/x/passport-tv-login/qrcode/auth_code";
+                 string pollUrl = "https://passport.bilibili.com/x/passport-tv-login/qrcode/poll";
+                 var parms = GetTVLoginParms();
+                 var dict = parms.AllKeys.ToDictionary(k => k!, k => parms[k]!);
+                 
+                 var response = await (await HTTPUtil.AppHttpClient.PostAsync(loginUrl, new FormUrlEncodedContent(dict), token)).Content.ReadAsByteArrayAsync(token);
+                 string web = Encoding.UTF8.GetString(response);
+                 var json = JsonDocument.Parse(web);
+                 string url = json.RootElement.GetProperty("data").GetProperty("url").ToString();
+                 string authCode = json.RootElement.GetProperty("data").GetProperty("auth_code").ToString();
+
+                 DisplayQrCode(url);
+                 QrCodeStatusLabel.Text = "请使用 Bilibili App 扫码登录 (TV)";
+
+                 parms.Set("auth_code", authCode);
+                 parms.Set("ts", GetTimeStamp(true));
+                 parms.Remove("sign");
+                 parms.Add("sign", GetSign(ToQueryString(parms)));
+                 dict = parms.AllKeys.ToDictionary(k => k!, k => parms[k]!);
+
+                 while (!token.IsCancellationRequested)
+                 {
+                     await Task.Delay(1500, token);
+                     var pollResp = await (await HTTPUtil.AppHttpClient.PostAsync(pollUrl, new FormUrlEncodedContent(dict), token)).Content.ReadAsByteArrayAsync(token);
+                     string pollWeb = Encoding.UTF8.GetString(pollResp);
+                     var pollJson = JsonDocument.Parse(pollWeb);
+                     string code = pollJson.RootElement.GetProperty("code").ToString();
+
+                     if (code == "0")
+                     {
+                         string accessToken = pollJson.RootElement.GetProperty("data").GetProperty("access_token").ToString();
+                         TokenBox.Text = accessToken;
+                         await File.WriteAllTextAsync(Path.Combine(AppContext.BaseDirectory, "BBDownTV.data"), "access_token=" + accessToken, token);
+                         QrCodeStatusLabel.Text = "登录成功!";
+                         await Task.Delay(1500, token);
+                         QrCodePanel.IsVisible = false;
+                         break;
+                     }
+                     else if (code == "86038")
+                     {
+                         QrCodeStatusLabel.Text = "二维码已过期，请重新点击登录";
+                         break;
+                     }
+                 }
+            }
+            else
+            {
+                // Web Login Logic
+                string loginUrl = "https://passport.bilibili.com/x/passport-login/web/qrcode/generate?source=main-fe-header";
+                string web = await HTTPUtil.GetWebSourceAsync(loginUrl);
+                string url = JsonDocument.Parse(web).RootElement.GetProperty("data").GetProperty("url").ToString();
+                string qrcodeKey = GetQueryString("qrcode_key", url);
+
+                DisplayQrCode(url);
+                QrCodeStatusLabel.Text = "请使用 Bilibili App 扫码登录 (Web)";
+
+                while (!token.IsCancellationRequested)
+                {
+                    await Task.Delay(1500, token);
+                    string queryUrl = $"https://passport.bilibili.com/x/passport-login/web/qrcode/poll?qrcode_key={qrcodeKey}&source=main-fe-header";
+                    string w = await HTTPUtil.GetWebSourceAsync(queryUrl);
+                    
+                    int code = JsonDocument.Parse(w).RootElement.GetProperty("data").GetProperty("code").GetInt32();
+                    if (code == 0)
+                    {
+                        string cc = JsonDocument.Parse(w).RootElement.GetProperty("data").GetProperty("url").ToString();
+                        string cookieStr = cc[(cc.IndexOf('?') + 1)..].Replace("&", ";").Replace(",", "%2C");
+                        CookieBox.Text = cookieStr;
+                         await File.WriteAllTextAsync(Path.Combine(AppContext.BaseDirectory, "BBDown.data"), cookieStr, token);
+                         QrCodeStatusLabel.Text = "登录成功!";
+                         await Task.Delay(1500, token);
+                         QrCodePanel.IsVisible = false;
+                         break;
+                    }
+                    else if (code == 86038)
+                    {
+                         QrCodeStatusLabel.Text = "二维码已过期，请重新点击登录";
+                         break;
+                    }
+                    else if (code == 86090)
+                    {
+                        QrCodeStatusLabel.Text = "扫码成功, 请在手机上确认...";
+                    }
+                }
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            QrCodeStatusLabel.Text = "登录出错: " + ex.Message;
+        }
+    }
+
+    private void DisplayQrCode(string url)
+    {
+        QRCodeGenerator qrGenerator = new();
+        QRCodeData qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
+        PngByteQRCode pngByteCode = new(qrCodeData);
+        byte[] bytes = pngByteCode.GetGraphic(20);
+        using var stream = new MemoryStream(bytes);
+        QrCodeImage.Source = new Avalonia.Media.Imaging.Bitmap(stream);
     }
 
     private async void OnStart(object? sender, RoutedEventArgs e)
@@ -77,15 +229,15 @@ public partial class MainWindow : Window
             UseAria2c = UseAria2cBox.IsChecked == true,
             Aria2cArgs = Aria2cArgsBox.Text ?? "",
             SelectPage = SelectPageBox.Text ?? "",
-            FilePattern = FilePatternBox.Text ?? "",
-            Language = LanguageBox.Text ?? "",
+            FilePattern = "", // Removed per user request
+            Language = "",
             UserAgent = "",
             Cookie = CookieBox.Text ?? "",
             AccessToken = TokenBox.Text ?? "",
             UseMP4box = UseMP4boxBox.IsChecked == true,
-            EncodingPriority = EncodingPriorityBox.Text ?? "",
-            DfnPriority = DfnPriorityBox.Text ?? "",
-            ShowAll = ShowAllBox.IsChecked == true,
+            EncodingPriority = "hevc,av1,avc", // Hardcoded Best Quality
+            DfnPriority = "杜比视界,HDR 真彩,8K 超高清,4K 超清,1080P 高码率,1080P 高清,720P 高清,480P 清晰,360P 流畅", // Hardcoded Best Quality
+            ShowAll = false, // Removed per user request
             SimplyMux = SimplyMuxBox.IsChecked == true,
             DanmakuOnly = DanmakuOnlyBox.IsChecked == true,
             CoverOnly = CoverOnlyBox.IsChecked == true,
@@ -93,28 +245,28 @@ public partial class MainWindow : Window
             SkipMux = SkipMuxBox.IsChecked == true,
             SkipSubtitle = SkipSubtitleBox.IsChecked == true,
             SkipCover = SkipCoverBox.IsChecked == true,
-            ForceHttp = ForceHttpBox.IsChecked == true,
+            ForceHttp = false, // Removed
             DownloadDanmaku = DownloadDanmakuBox.IsChecked == true,
             DownloadDanmakuFormats = DanmakuFormatsBox.Text ?? "",
             SkipAi = SkipAiBox.IsChecked == true,
-            VideoAscending = VideoAscendingBox.IsChecked == true,
-            AudioAscending = AudioAscendingBox.IsChecked == true,
-            AllowPcdn = AllowPcdnBox.IsChecked == true,
-            MultiFilePattern = MultiFilePatternBox.Text ?? "",
+            VideoAscending = false, // Removed
+            AudioAscending = false, // Removed
+            AllowPcdn = false, // Removed
+            MultiFilePattern = "", // Removed
             WorkDir = WorkDirBox.Text ?? "",
-            DelayPerPage = DelayPerPageBox.Text ?? "0",
-            FFmpegPath = FFmpegPathBox.Text ?? "",
-            Mp4boxPath = Mp4boxPathBox.Text ?? "",
-            Aria2cPath = Aria2cPathBox.Text ?? "",
-            UposHost = UposHostBox.Text ?? "",
-            ForceReplaceHost = ForceReplaceHostBox.IsChecked == true,
-            SaveArchivesToFile = SaveArchivesToFileBox.IsChecked == true,
-            Host = HostBox.Text ?? "",
-            EpHost = EpHostBox.Text ?? "",
-            TvHost = TvHostBox.Text ?? "",
-            Area = AreaBox.Text ?? "",
-            ConfigFile = string.IsNullOrWhiteSpace(ConfigFileBox.Text) ? null : ConfigFileBox.Text,
-            Debug = DebugBox.IsChecked == true
+            DelayPerPage = "0", // Default
+            FFmpegPath = _ffmpegPath,
+            Mp4boxPath = _mp4boxPath,
+            Aria2cPath = _aria2cPath,
+            UposHost = "", // Removed
+            ForceReplaceHost = false, // Removed
+            SaveArchivesToFile = false, // Removed
+            Host = "", // Removed
+            EpHost = "", // Removed
+            TvHost = "", // Removed
+            Area = "", // Removed
+            ConfigFile = null, // Removed
+            Debug = false // Removed
         };
 
         return args;
@@ -177,19 +329,19 @@ public partial class MainWindow : Window
 
     private async Task RunCliAsync(List<string> args, CancellationToken token)
     {
-        var cliPath = CliPathBox.Text;
+        // Removed CliPathBox reference, assume default or bundled
         var bundledCli = FindBundledCli();
         var useBundled = bundledCli != null && File.Exists(bundledCli);
-        var useCliExe = !useBundled && !string.IsNullOrWhiteSpace(cliPath) && File.Exists(cliPath);
+        // Fallback to dotnet run if bundled not found, ignoring CliPathBox as it's removed
         var psi = new ProcessStartInfo
         {
-            FileName = useBundled ? bundledCli! : (useCliExe ? cliPath! : "dotnet"),
+            FileName = useBundled ? bundledCli! : "dotnet",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true
         };
-        if (useBundled || useCliExe)
+        if (useBundled)
         {
             foreach (var a in args) psi.ArgumentList.Add(a);
         }
@@ -197,7 +349,7 @@ public partial class MainWindow : Window
         {
             if (!DotnetAvailable())
             {
-                AppendLog("未检测到 dotnet，可在高级设置中指定 CLI 路径后直接运行。");
+                AppendLog("未检测到 dotnet，请确保安装了 .NET SDK 或使用打包版。");
                 return;
             }
             psi.ArgumentList.Add("run");
@@ -251,52 +403,8 @@ public partial class MainWindow : Window
             var s = LogBox.Text ?? string.Empty;
             s += line + Environment.NewLine;
             LogBox.Text = s;
+            LogBox.CaretIndex = int.MaxValue;
         });
-    }
-
-    private async Task TestBinary(string exe, string args)
-    {
-        try
-        {
-            var psi = new ProcessStartInfo
-            {
-                FileName = exe,
-                Arguments = args,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-            var p = new Process { StartInfo = psi };
-            p.Start();
-            var stdout = await p.StandardOutput.ReadToEndAsync();
-            var stderr = await p.StandardError.ReadToEndAsync();
-            p.WaitForExit();
-            if (!string.IsNullOrWhiteSpace(stdout)) AppendLog(stdout);
-            if (!string.IsNullOrWhiteSpace(stderr)) AppendLog(stderr);
-        }
-        catch (Exception ex)
-        {
-            AppendLog(ex.Message);
-        }
-    }
-
-    private void ApplyBestPreset()
-    {
-        EncodingPriorityBox.Text = "hevc,av1,avc";
-        DfnPriorityBox.Text = "杜比视界,HDR 真彩,8K 超高清,4K 超清,1080P 高码率,1080P 高清,720P 高清,480P 清晰,360P 流畅";
-        UseMP4boxBox.IsChecked = false;
-        MultiThreadBox.IsChecked = true;
-        UseAria2cBox.IsChecked = true;
-        if (string.IsNullOrWhiteSpace(Aria2cArgsBox.Text)) Aria2cArgsBox.Text = "-x16 -s16 -j16 -k5M";
-        AppendLog("已应用最高画质预设");
-    }
-
-    private async Task<string?> PickFileAsync(string title)
-    {
-        if (StorageProvider is null) return null;
-        var res = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions { Title = title, AllowMultiple = false });
-        return res != null && res.Count > 0 ? res[0].Path.LocalPath : null;
     }
 
     private async Task<string?> PickFolderAsync(string title)
