@@ -5,6 +5,8 @@ on: [push,workflow_dispatch]
 env:
   DOTNET_SDK_VERSION: "9.0.306"
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_NOLOGO: true
 
 jobs:
   set-date:
@@ -142,7 +144,8 @@ jobs:
             -p:UseAppHost=true \
             -p:SelfContained=true \
             -property:Configuration=Release \
-            -p:DebugType=None
+            -p:DebugType=None \
+            -p:UseSharedCompilation=false
       - name: Download Tools
         run: |
           # Define URLs
