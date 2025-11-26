@@ -149,12 +149,16 @@ jobs:
       - name: Download Tools
         run: |
           # Define URLs
+          FFMPEG_URL="https://evermeet.cx/ffmpeg/ffmpeg.7z"
           ARIA2_URL="https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-osx-darwin.tar.bz2"
           
-          # Use local FFmpeg (Version 8) from project root
-          chmod +x ffmpeg
           APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS"
           mkdir -p "$APP_DIR"
+
+          # Download and install FFmpeg
+          curl -L -o ffmpeg.7z "$FFMPEG_URL"
+          7z x ffmpeg.7z
+          chmod +x ffmpeg
           cp ffmpeg "$APP_DIR/"
           
           # Download and install Aria2c
@@ -209,12 +213,16 @@ jobs:
       - name: Download Tools
         run: |
           # Define URLs
+          FFMPEG_URL="https://evermeet.cx/ffmpeg/ffmpeg-7.0.7z"
           ARIA2_URL="https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-osx-darwin.tar.bz2"
           
-          # Use local FFmpeg (Version 8) from project root
-          chmod +x ffmpeg
           APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS"
           mkdir -p "$APP_DIR"
+
+          # Download and install FFmpeg
+          curl -L -o ffmpeg.7z "$FFMPEG_URL"
+          7z x ffmpeg.7z
+          chmod +x ffmpeg
           cp ffmpeg "$APP_DIR/"
           
           # Download and install Aria2c
