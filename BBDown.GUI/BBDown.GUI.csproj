@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <CFBundleName>BBDown.GUI</CFBundleName>
+    <CFBundleName>BBDown GUI</CFBundleName>
     <CFBundleDisplayName>BBDown GUI</CFBundleDisplayName>
     <CFBundleIdentifier>com.nilaoda.bbdown.gui</CFBundleIdentifier>
     <CFBundleVersion>1.6.3</CFBundleVersion>
