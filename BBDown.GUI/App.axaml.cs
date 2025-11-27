@@ -5,6 +5,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Controls;
 using BBDown.GUI.Views;
 using System.Runtime.InteropServices;
+using ReactiveUI;
 
 namespace BBDown.GUI;
 
@@ -26,12 +27,15 @@ public partial class App : Application
         {
             var menu = new NativeMenu();
             var about = new NativeMenuItem("关于 BBDown GUI");
-            about.Clicked += (sender, e) =>
+            about.Command = ReactiveCommand.Create(() =>
             {
                 new AboutWindow().Show();
-            };
+            });
             menu.Add(about);
-            NativeMenu.SetMenu(Application.Current, menu);
+            if (Application.Current != null)
+            {
+                NativeMenu.SetMenu(Application.Current, menu);
+            }
         }
 
         base.OnFrameworkInitializationCompleted();
