@@ -23,21 +23,6 @@ public partial class App : Application
             desktop.MainWindow = new MainWindow();
         }
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            var menu = new NativeMenu();
-            var about = new NativeMenuItem("关于 BBDown GUI");
-            about.Command = ReactiveCommand.Create(() =>
-            {
-                new AboutWindow().Show();
-            });
-            menu.Add(about);
-            if (Application.Current != null)
-            {
-                NativeMenu.SetMenu(Application.Current, menu);
-            }
-        }
-
         base.OnFrameworkInitializationCompleted();
     }
 }
