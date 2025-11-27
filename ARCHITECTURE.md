@@ -99,3 +99,22 @@ BBDown GUI 是一个基于 [nilaoda/BBDown](https://github.com/nilaoda/BBDown) �
         *   对于 Windows，将所有文件（GUI, CLI, FFmpeg, Aria2c）打包成一个 `.zip` 压缩包。
         *   对于 macOS，将所有文件打包成一个标准的 `.app` 应用，并最终生成一个 `.dmg` 磁盘映像文件。
     4.  **创建 Release**: 将生成的 `.zip` 和 `.dmg` 文件作为产物，在 GitHub 上创建一个新的 Release 草稿。
+
+## 7. 参与 GUI 界面开发
+
+### 7.1. 环境准备
+- 安装 .NET SDK 9.0 或更高版本（项目基于 .NET 平台构建）。
+- 推荐使用以下 IDE 之一进行开发：
+  - Visual Studio 2022 或更高版本（Windows/macOS）。
+  - JetBrains Rider（跨平台）。
+  - Visual Studio Code（需安装 Avalonia 相关扩展）。
+
+### 7.2. 启动项目
+1. 克隆仓库到本地（包含子模块）：`git clone --recurse-submodules https://github.com/binbin1213/bbdown.git`。
+2. 打开 `BBDown.sln` 解决方案文件。
+3. 在 IDE 中设置 `BBDown.GUI` 项目为启动项目。
+4. 点击“启动”按钮，即可运行 GUI 程序进行开发调试。
+
+### 7.3. 开发建议
+- `BBDown.GUI` 基于 Avalonia UI 框架构建，建议参考 [Avalonia 官方文档](https://docs.avaloniaui.net/) 进行界面开发。
+- 界面相关的代码主要位于 `BBDown.GUI/Views` 和 `BBDown.GUI/ViewModels` 目录下，遵循 MVVM 设计模式。

@@ -13,6 +13,18 @@
 ## 界面预览
 ![BBDown.GUI](images/BBDown.GUI.png)
 
+## 从源码构建
+
+如果您希望自行编译本项目，请按照以下步骤操作：
+
+1.  克隆仓库（包含子模块）：
+    ```bash
+    git clone --recurse-submodules https://github.com/binbin1213/bbdown.git
+    ```
+2.  使用 Visual Studio 2022 或 JetBrains Rider 打开 `BBDown.sln` 解决方案。
+3.  将 `BBDown.GUI` 设置为启动项目。
+4.  编译并运行。
+
 ## 特别致谢
 
 本项目的 GUI 是基于 [nilaoda/BBDown](https://github.com/nilaoda/BBDown) 的强大核心功能构建的。由衷感谢原作者的杰出工作！
