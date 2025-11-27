@@ -33,6 +33,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AvaloniaXaml Include="Views\AboutWindow.axaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaXaml>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BBDown\BBDown.csproj" />
     <ProjectReference Include="..\BBDown.Core\BBDown.Core.csproj" />
   </ItemGroup>

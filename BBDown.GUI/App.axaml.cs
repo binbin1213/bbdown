@@ -2,6 +2,10 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 
+using Avalonia.Controls;
+using BBDown.GUI.Views;
+using System.Runtime.InteropServices;
+
 namespace BBDown.GUI;
 
 public partial class App : Application
@@ -17,6 +21,19 @@ public partial class App : Application
         {
             desktop.MainWindow = new MainWindow();
         }
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            var menu = new NativeMenu();
+            var about = new NativeMenuItem("关于 BBDown GUI");
+            about.Clicked += (sender, e) =>
+            {
+                new AboutWindow().Show();
+            };
+            menu.Add(about);
+            NativeMenu.SetMenu(Application.Current, menu);
+        }
+
         base.OnFrameworkInitializationCompleted();
     }
 }
