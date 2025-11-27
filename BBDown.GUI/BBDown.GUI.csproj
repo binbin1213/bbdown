@@ -7,8 +7,8 @@
     <CFBundleName>BBDown GUI</CFBundleName>
     <CFBundleDisplayName>BBDown GUI</CFBundleDisplayName>
     <CFBundleIdentifier>com.nilaoda.bbdown.gui</CFBundleIdentifier>
-    <CFBundleVersion>1.6.3</CFBundleVersion>
-    <CFBundleShortVersionString>1.6.3</CFBundleShortVersionString>
+    <CFBundleVersion>1.1.0</CFBundleVersion>
+    <CFBundleShortVersionString>1.1.0</CFBundleShortVersionString>
     <CFBundleExecutable>BBDown.GUI</CFBundleExecutable>
     <NSPrincipalClass>NSApplication</NSPrincipalClass>
     <NSHighResolutionCapable>true</NSHighResolutionCapable>
