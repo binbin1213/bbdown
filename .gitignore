@@ -382,3 +382,4 @@ tools/
 bbdown-bin/
 BBDown_osx-*.zip
 BBDown_*.zip
+*.dmg
