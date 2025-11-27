@@ -18,7 +18,7 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets/logo.png" />
-    <None Include="Assets\logo.icns">
+    <None Include="Assets/logo.icns">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -33,14 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AvaloniaXaml Include="Views\AboutWindow.axaml">
-      <Generator>MSBuild:Compile</Generator>
-    </AvaloniaXaml>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\BBDown\BBDown.csproj" />
-    <ProjectReference Include="..\BBDown.Core\BBDown.Core.csproj" />
+    <ProjectReference Include="../BBDown/BBDown.csproj" />
+    <ProjectReference Include="../BBDown.Core/BBDown.Core.csproj" />
   </ItemGroup>
 
 </Project>
