@@ -1,4 +1,15 @@
 <Application xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="BBDown.GUI.App" RequestedThemeVariant="Default" Name="BBDown GUI">
+  <NativeMenu.Menu>
+    <NativeMenu>
+      <NativeMenuItem Header="BBDown GUI">
+        <NativeMenu>
+          <NativeMenuItem Header="关于 BBDown GUI" Click="About_OnClick" />
+          <NativeMenuItemSeparator />
+          <NativeMenuItem Header="退出 BBDown GUI" Click="Quit_OnClick" Gesture="Cmd+Q" />
+        </NativeMenu>
+      </NativeMenuItem>
+    </NativeMenu>
+  </NativeMenu.Menu>
   <Application.Styles>
     <FluentTheme/>
     <Style Selector="StackPanel">
