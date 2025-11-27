@@ -21,6 +21,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -68,6 +70,8 @@ jobs:
         rid: [ osx-arm64, osx-x64 ]
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: 'true' 
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -138,6 +142,8 @@ jobs:
         rid: [ osx-arm64, osx-x64 ]
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
