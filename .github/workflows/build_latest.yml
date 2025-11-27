@@ -153,7 +153,7 @@ jobs:
           if [ "${{ matrix.rid }}" = "osx-arm64" ]; then FFMPEG_URL="https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/snapshot/ffmpeg.zip"; else FFMPEG_URL="https://ffmpeg.martin-riedl.de/redirect/latest/macos/amd64/snapshot/ffmpeg.zip"; fi
           ARIA2_URL="https://github.com/aria2/aria2/releases/download/release-1.35.0/aria2-1.35.0-osx-darwin.tar.bz2"
           
-          APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS"
+          APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown GUI.app/Contents/MacOS"
           mkdir -p "$APP_DIR"
 
           # Download and install FFmpeg
@@ -171,11 +171,11 @@ jobs:
       - name: Publish CLI for same RID
         run: |
           dotnet publish BBDown/BBDown.csproj -c Release -r ${{ matrix.rid }} /p:SelfContained=true /p:PublishSingleFile=true /p:DebugType=None -o BBDown-cli
-          APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS" \
+          APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown GUI.app/Contents/MacOS" \
             && cp BBDown-cli/BBDown "$APP_DIR/BBDown"
       - name: Create DMG
         run: |
-          APP_PATH="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app" \
+          APP_PATH="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown GUI.app" \
             && DMG_NAME="BBDown.GUI-${{ matrix.rid }}.dmg" \
             && hdiutil create -volname "BBDown" -srcfolder "$APP_PATH" -ov -format UDZO "$DMG_NAME"
       - name: Upload DMG Artifact
@@ -217,7 +217,7 @@ jobs:
           if [ "${{ matrix.rid }}" = "osx-arm64" ]; then FFMPEG_URL="https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/snapshot/ffmpeg.zip"; else FFMPEG_URL="https://ffmpeg.martin-riedl.de/redirect/latest/macos/amd64/snapshot/ffmpeg.zip"; fi
           ARIA2_URL="https://github.com/aria2/aria2/releases/download/release-1.35.0/aria2-1.35.0-osx-darwin.tar.bz2"
           
-          APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS"
+          APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown GUI.app/Contents/MacOS"
 
           # Download and install FFmpeg
           curl -L -o ffmpeg.zip "$FFMPEG_URL"
@@ -234,11 +234,11 @@ jobs:
       - name: Publish CLI for same RID
         run: |
           dotnet publish BBDown/BBDown.csproj -c Release -r ${{ matrix.rid }} /p:SelfContained=true /p:PublishSingleFile=true /p:DebugType=None -o BBDown-cli
-          APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app/Contents/MacOS" \
+          APP_DIR="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown GUI.app/Contents/MacOS" \
             && cp BBDown-cli/BBDown "$APP_DIR/BBDown"
       - name: Create DMG
         run: |
-          APP_PATH="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown.GUI.app" \
+          APP_PATH="BBDown.GUI/bin/Release/net9.0/${{ matrix.rid }}/publish/BBDown GUI.app" \
             && DMG_NAME="BBDown.GUI-${{ matrix.rid }}.dmg" \
             && hdiutil create -volname "BBDown" -srcfolder "$APP_PATH" -ov -format UDZO "$DMG_NAME"
       - name: Upload DMG Artifact
