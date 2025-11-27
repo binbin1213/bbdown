@@ -383,3 +383,17 @@ bbdown-bin/
 BBDown_osx-*.zip
 BBDown_*.zip
 *.dmg
+*.mp4
+
+# IDE
+.trae/
+.vscode/
+
+# Build output and binaries
+bbdown-bin/
+aria2c
+ffmpeg
+
+# Personal files
+BBDown-项目分析.md
+doown.png
